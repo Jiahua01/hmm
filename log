@@ -1,3 +1,0 @@
-source init.sh vbfhmm
-cd build/bin
-voms-proxy-init --rfc --voms cms

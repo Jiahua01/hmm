@@ -1,5 +1,0 @@
-dbs: /WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8/RunIISummer20UL18NanoAODv9-106X_upgrade2018_realistic_v16_L1v1-v1/NANOAODSIM
-era: 2018
-filelist:
-- root://cmsxrootd.fnal.gov//store/mc/RunIISummer20UL18NanoAODv9/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/2550000/32A7FB89-E073-214C-B7AF-F22FA383892B.root
-- root://cmsxrootd.fnal.gov//store/mc/RunIISummer20UL18NanoAODv9/WminusHToMuMu_M125_TuneCP5_13TeV-powheg-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/2550000/7114F6B4-3F2A-664F-B121-FB2F98E5F749.root

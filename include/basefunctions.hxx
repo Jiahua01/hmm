@@ -123,6 +123,7 @@ ROOT::RDF::RNode getvar(ROOT::RDF::RNode df, const std::string &outputname,
         },
         {vecname, column});
 }
+
 ///
 //template <typename T>
 //ROOT::RDF::RNode getvar_try(ROOT::RDF::RNode df, const std::string &outputname,
@@ -388,6 +389,19 @@ inline auto FilterAbsMin(const float &cut) {
     };
 }
 
+/// Function to apply an exact filter requirement to an integer quantity.
+/// Returns true if the value is equal to the given value
+///
+/// \param cut The value of the filter
+///
+/// \returns a lambda function to be used in RDF Define
+inline auto FilterEqualInt(const int &cut) {
+    return [cut](const ROOT::RVec<int> &values) {
+        ROOT::RVec<int> mask = values == cut;
+        return mask;
+    };
+}
+
 /// Function to combine two RVec Masks by multiplying the two RVec elementwise
 ///
 /// \param mask_1 The first mask
@@ -428,6 +442,14 @@ inline auto FilterID(const int &index) {
 /// \returns a lambda function to be used in RDF Define
 inline auto FilterJetID(const int &index) {
     return [index](const ROOT::RVec<Int_t> &IDs) {
+        ROOT::RVec<int> mask = IDs >= index;
+        Logger::get("FilterJetID")->debug("IDs: {}", IDs);
+        Logger::get("FilterJetID")->debug("Filtered mask: {}", mask);
+        return mask;
+    };
+}
+inline auto FilterJetID(const UChar_t &index) {
+    return [index](const ROOT::RVec<UChar_t> &IDs) {
         ROOT::RVec<int> mask = IDs >= index;
         Logger::get("FilterJetID")->debug("IDs: {}", IDs);
         Logger::get("FilterJetID")->debug("Filtered mask: {}", mask);

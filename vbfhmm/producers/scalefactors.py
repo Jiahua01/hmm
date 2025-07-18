@@ -1,4 +1,5 @@
 from ..quantities import output as q
+from ..quantities import nanoAOD as nanoAOD
 from code_generation.producer import Producer, ProducerGroup
 from code_generation.producer import ExtendedVectorProducer
 
@@ -68,28 +69,28 @@ Muon_2_Iso_SF = Producer(
 ##
 Muon_1_ID_SF = Producer(
     name="MuonID_SF",
-    call='scalefactor::muon::id({df}, {input}, "{muon_sf_year_id}", "{muon_sf_varation}", {output}, "{muon_sf_file}", "{muon_low_sf_file}", "{muon_id_sf_name}")',
+    call='scalefactor::muon::id({df}, {input}, "{muon_sf_year_id}", "{muon_sf_varation}", {output}, "{muon_sf_file}", "{muon_id_sf_name}")',
     input=[q.mu1_fromH_pt, q.mu1_fromH_eta],
     output=[q.id_wgt_mu_1],
     scopes=["vbfhmm"],
 )
 Muon_1_Iso_SF = Producer(
     name="MuonIso_SF",
-    call='scalefactor::muon::iso({df}, {input}, "{muon_sf_year_id}", "{muon_sf_varation}", {output}, "{muon_sf_file}", "{muon_low_sf_file}", "{muon_iso_sf_name}")',
+    call='scalefactor::muon::iso({df}, {input}, "{muon_sf_year_id}", "{muon_sf_varation}", {output}, "{muon_sf_file}", "{muon_iso_sf_name}")',
     input=[q.mu1_fromH_pt, q.mu1_fromH_eta],
     output=[q.iso_wgt_mu_1],
     scopes=["vbfhmm"],
 )
 Muon_2_ID_SF = Producer(
     name="MuonID_SF",
-    call='scalefactor::muon::id({df}, {input}, "{muon_sf_year_id}", "{muon_sf_varation}", {output},  "{muon_sf_file}", "{muon_low_sf_file}", "{muon_id_sf_name}")',
+    call='scalefactor::muon::id({df}, {input}, "{muon_sf_year_id}", "{muon_sf_varation}", {output}, "{muon_sf_file}", "{muon_id_sf_name}")',
     input=[q.mu2_fromH_pt, q.mu2_fromH_eta],
     output=[q.id_wgt_mu_2],
     scopes=["vbfhmm"],
 )
 Muon_2_Iso_SF = Producer(
     name="MuonIso_SF",
-    call='scalefactor::muon::iso({df}, {input}, "{muon_sf_year_id}", "{muon_sf_varation}", {output},  "{muon_sf_file}", "{muon_low_sf_file}", "{muon_id_sf_name}")',
+    call='scalefactor::muon::iso({df}, {input}, "{muon_sf_year_id}", "{muon_sf_varation}", {output}, "{muon_sf_file}", "{muon_iso_sf_name}")',
     input=[q.mu2_fromH_pt, q.mu2_fromH_eta],
     output=[q.iso_wgt_mu_2],
     scopes=["vbfhmm"],
@@ -111,6 +112,53 @@ MuonIDIso_SF_vbfhmm = ProducerGroup(
     },
 )
 ##
+## 2022 without year
+Muon_1_ID_SF_noYear = Producer(
+    name="MuonID_SF_noYear",
+    call='scalefactor::muon::id({df}, {input}, "{muon_sf_varation}", {output}, "{muon_sf_file}", "{muon_id_sf_name}")',
+    input=[q.mu1_fromH_pt, q.mu1_fromH_eta],
+    output=[q.id_wgt_mu_1],
+    scopes=["vbfhmm"],
+)
+Muon_1_Iso_SF_noYear = Producer(
+    name="MuonIso_SF_noYear",
+    call='scalefactor::muon::iso({df}, {input}, "{muon_sf_varation}", {output}, "{muon_sf_file}", "{muon_iso_sf_name}")',
+    input=[q.mu1_fromH_pt, q.mu1_fromH_eta],
+    output=[q.iso_wgt_mu_1],
+    scopes=["vbfhmm"],
+)
+Muon_2_ID_SF_noYear = Producer(
+    name="MuonID_SF_noYear",
+    call='scalefactor::muon::id({df}, {input}, "{muon_sf_varation}", {output}, "{muon_sf_file}", "{muon_id_sf_name}")',
+    input=[q.mu2_fromH_pt, q.mu2_fromH_eta],
+    output=[q.id_wgt_mu_2],
+    scopes=["vbfhmm"],
+)
+Muon_2_Iso_SF_noYear = Producer(
+    name="MuonIso_SF_noYear",
+    call='scalefactor::muon::iso({df}, {input}, "{muon_sf_varation}", {output}, "{muon_sf_file}", "{muon_iso_sf_name}")',
+    input=[q.mu2_fromH_pt, q.mu2_fromH_eta],
+    output=[q.iso_wgt_mu_2],
+    scopes=["vbfhmm"],
+)
+
+MuonIDIso_SF_vbfhmm_noYear = ProducerGroup(
+    name="MuonIDIso_SF_vbfhmm_noYear",
+    call=None,
+    input=None,
+    output=None,
+    scopes=["vbfhmm"],
+    subproducers={
+        "vbfhmm": [
+            Muon_1_ID_SF_noYear,
+            Muon_1_Iso_SF_noYear,
+            Muon_2_ID_SF_noYear,
+            Muon_2_Iso_SF_noYear,
+        ],
+    },
+)
+##
+##ahhh
 
 Muon_1_ID_SF_vhmm = Producer(
     name="Muon_1_ID_SF_vhmm",
@@ -333,4 +381,23 @@ EleID_SF = ProducerGroup(
             Ele_2_IDWP80_SF,
         ],
     },
+)
+
+#########################
+# b-tagging SF
+#########################
+btagging_SF = Producer(
+    name="btagging_SF",
+    call='scalefactor::jet::btagSF({df}, {input}, "{btag_sf_variation}", {output}, "{btag_sf_file}", "{btag_corr_algo}")',
+    input=[
+        q.Jet_pt_corrected,
+        nanoAOD.Jet_eta,
+        nanoAOD.BJet_discriminator,
+        nanoAOD.Jet_flavor,
+        q.good_jets_mask,
+        q.good_bjets_mask_loose,
+        q.jet_overlap_veto_mask,
+    ],
+    output=[q.btag_weight],
+    scopes=["vbfhmm"],
 )

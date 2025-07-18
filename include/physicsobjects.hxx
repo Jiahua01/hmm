@@ -275,6 +275,8 @@ ROOT::RDF::RNode CheckForDiLeptonPairs(
     const std::string &leptons_phi, const std::string &leptons_mass,
     const std::string &leptons_charge, const std::string &leptons_mask,
     const float dR_cut);
+ROOT::RDF::RNode SelectInt(ROOT::RDF::RNode df, const std::string &maskname,
+                           const std::string &nameID, const int &IDvalue);
 namespace muon {
 ROOT::RDF::RNode CutID(ROOT::RDF::RNode df, const std::string &maskname,
                        const std::string &nameID);
@@ -304,6 +306,35 @@ applyRoccoRMC(ROOT::RDF::RNode df, const std::string &outputname,
               const std::string &phiColumn, const std::string &genPtColumn,
               const std::string &nTrackerLayersColumn,
               const std::string &rndmColumn, int error_set, int error_member);
+ROOT::RDF::RNode
+applyRoccoRMC_2022(ROOT::RDF::RNode df, const std::string &outputname,
+              const std::string &filename, const int &position,
+              const std::string &objCollection, const std::string &chargColumn,
+              const std::string &ptColumn, const std::string &etaColumn,
+              const std::string &phiColumn, const std::string &genPtColumn,
+              const std::string &nTrackerLayersColumn,
+              const std::string &rndmColumn, int error_set, int error_member);
+ROOT::RDF::RNode applyMuonScaReMC(ROOT::RDF::RNode df, const std::string &outputname,
+              const std::string &jsonfile, const int &position,
+              const std::string &objCollection, const std::string &chargeCol,
+              const std::string &ptCol, const std::string &etaCol,
+              const std::string &phiCol, const std::string &nLCol);
+ROOT::RDF::RNode applyMuonScaReData(ROOT::RDF::RNode df,const std::string &outputname,
+              const std::string &jsonfile, const int &position,
+              const std::string &objCollection, const std::string &chargeCol,
+              const std::string &ptCol, const std::string &etaCol,
+              const std::string &phiCol);
+ROOT::RDF::RNode applyMuonScaReData_Err(ROOT::RDF::RNode df, const std::string &outputname,
+              const std::string &jsonfile, const int &position,
+              const std::string &objCollection, const std::string &ptCol,
+              const std::string &etaCol, const std::string &phiCol,
+              const std::string &chargeCol);
+ROOT::RDF::RNode applyMuonScaReMC_Err(ROOT::RDF::RNode df, const std::string &outputname,
+              const std::string &jsonfile, const int &position,
+              const std::string &objCollection, const std::string &ptCol,
+              const std::string &etaCol, const std::string &phiCol,
+              const std::string &chargeCol, const std::string &nLCol
+);
 } // namespace muon
 namespace tau {
 ROOT::RDF::RNode CutDecayModes(ROOT::RDF::RNode df, const std::string &maskname,
@@ -346,6 +377,10 @@ ROOT::RDF::RNode
 PtCorrection_byValue(ROOT::RDF::RNode df, const std::string &corrected_pt,
                      const std::string &pt, const std::string &eta,
                      const float &sf_barrel, const float &sf_endcap);
+ROOT::RDF::RNode PtCorrection(ROOT::RDF::RNode df, const std::string &corrected_pt,
+                    const std::string &pt, const std::string &eta,
+                    const std::string &sf_barrel, const std::string &sf_endcap,
+                    const std::string &sf_file, const std::string &jsonESname);
 
 ROOT::RDF::RNode CutID(ROOT::RDF::RNode df, const std::string &maskname,
                        const std::string &nameID);

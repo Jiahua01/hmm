@@ -79,10 +79,15 @@ Jet_area = NanoAODQuantity("Jet_area")
 Jet_flavor = NanoAODQuantity("Jet_hadronFlavour")
 Jet_rawFactor = NanoAODQuantity("Jet_rawFactor")
 Jet_ID = NanoAODQuantity("Jet_jetId")
+Jet_neHEF = NanoAODQuantity("Jet_neHEF")
+Jet_neEmEF = NanoAODQuantity("Jet_neEmEF")
+Jet_muEF = NanoAODQuantity("Jet_muEF")
+Jet_chEmEF = NanoAODQuantity("Jet_chEmEF")
 Jet_PUID = NanoAODQuantity("Jet_puId")
 Jet_associatedGenJet = NanoAODQuantity("Jet_genJetIdx")
 #BJet_discriminator = NanoAODQuantity("Jet_btagDeepFlavB") # DeepFlavour
-BJet_discriminator = NanoAODQuantity("Jet_btagDeepB") # vh DeepCSV
+#BJet_discriminator = NanoAODQuantity("Jet_btagDeepB") # vh DeepCSV
+BJet_discriminator = NanoAODQuantity("Jet_btagPNetB")
 Jet_QGdiscriminator = NanoAODQuantity("Jet_btagDeepFlavQG")
 Jet_qgl = NanoAODQuantity("Jet_qgl") # Quark vs Gluon likelihood discriminator  
 nSoftJet5 = NanoAODQuantity("SoftActivityJetNjets5")
@@ -104,6 +109,13 @@ GenParticle_pdgId = NanoAODQuantity("GenPart_pdgId")
 GenParticle_status = NanoAODQuantity("GenPart_status")
 GenParticle_statusFlags = NanoAODQuantity("GenPart_statusFlags")
 GenParticle_motherid = NanoAODQuantity("GenPart_genPartIdxMother")
+
+# for BSC
+Muon_bsConstrainedChi2 = NanoAODQuantity("Muon_bsConstrainedChi2")
+Muon_bsConstrainedPt = NanoAODQuantity("Muon_bsConstrainedPt")
+Muon_bsConstrainedPtErr = NanoAODQuantity("Muon_bsConstrainedPtErr")
+Muon_dxybs = NanoAODQuantity("Muon_dxybs")
+Muon_charge = NanoAODQuantity("Muon_charge")
 
 ## Trigger Objects
 TriggerObject_bit = NanoAODQuantity("TrigObj_filterBits")

@@ -98,38 +98,6 @@ ROOT::RDF::RNode iso_rooworkspace(ROOT::RDF::RNode df, const std::string &pt,
 ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &pt,
                     const std::string &eta, const std::string &year_id,
                     const std::string &variation, const std::string &id_output,
-                    const std::string &sf_file, const std::string &low_sf_file, 
-                    const std::string &idAlgorithm) {
-
-    Logger::get("muonIdSF")->debug("Setting up functions for muon id sf");
-    Logger::get("muonIdSF")->debug("ID - Name {}", idAlgorithm);
-    auto evaluator = correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
-    auto evaluator_low = correction::CorrectionSet::from_file(low_sf_file)->at(idAlgorithm);
-    auto df1 = df.Define(
-        id_output,
-        [evaluator, evaluator_low, year_id, variation](const float &pt, const float &eta) {
-            Logger::get("muonIdSF")->debug("ID - pt {}, eta {}", pt, eta);
-            double sf = 1.;
-            // preventing muons with default values due to tau energy correction
-            // shifts below good tau pt selection
-            if (pt >= 15.0 && std::abs(eta) >= 0.0) {
-                sf = evaluator->evaluate(
-                    {std::abs(eta), pt, variation});
-            }
-            if (pt >= 0.0 && pt < 15.0 && std::abs(eta) >= 0.0) {
-                sf = evaluator_low->evaluate(
-                    {std::abs(eta), pt, variation});
-            }
-            return sf;
-        },
-        {pt, eta});
-    return df1;
-}
-/// sf for vhmm
-///
-ROOT::RDF::RNode id_vhmm(ROOT::RDF::RNode df, const std::string &p4, 
-                    const std::string &year_id,
-                    const std::string &variation, const std::string &id_output,
                     const std::string &sf_file,
                     const std::string &idAlgorithm) {
 
@@ -139,9 +107,7 @@ ROOT::RDF::RNode id_vhmm(ROOT::RDF::RNode df, const std::string &p4,
         correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
     auto df1 = df.Define(
         id_output,
-        [evaluator, year_id, variation](ROOT::Math::PtEtaPhiMVector &p4) {
-            const float &pt = p4.Pt();
-            const float &eta = p4.Eta();
+        [evaluator, year_id, variation](const float &pt, const float &eta) {
             Logger::get("muonIdSF")->debug("ID - pt {}, eta {}", pt, eta);
             double sf = 1.;
             // preventing muons with default values due to tau energy correction
@@ -152,9 +118,38 @@ ROOT::RDF::RNode id_vhmm(ROOT::RDF::RNode df, const std::string &p4,
             }
             return sf;
         },
-        {p4});
+        {pt, eta});
     return df1;
 }
+ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &pt,
+                    const std::string &eta, //const std::string &year_id,
+                    const std::string &variation, const std::string &id_output,
+                    const std::string &sf_file,
+                    const std::string &idAlgorithm) {
+
+    Logger::get("muonIdSF")->debug("Setting up functions for muon id sf");
+    Logger::get("muonIdSF")->debug("ID - Name {}", idAlgorithm);
+    auto evaluator =
+        correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
+    auto df1 = df.Define(
+        id_output,
+        //[evaluator, year_id, variation](const float &pt, const float &eta) {
+        [evaluator, variation](const float &pt, const float &eta) {
+            Logger::get("muonIdSF")->debug("ID - pt {}, eta {}", pt, eta);
+            double sf = 1.;
+            // preventing muons with default values due to tau energy correction
+            // shifts below good tau pt selection
+            if (pt >= 0.0 && std::abs(eta) >= 0.0) {
+                sf = evaluator->evaluate(
+                    //{year_id, std::abs(eta), pt, variation});
+                    {std::abs(eta), pt, variation});
+            }
+            return sf;
+        },
+        {pt, eta});
+    return df1;
+}
+///ahhh
 /**
  * @brief Function used to evaluate iso scale factors from muons with
  * correctionlib. Configurations:
@@ -180,35 +175,6 @@ ROOT::RDF::RNode id_vhmm(ROOT::RDF::RNode df, const std::string &p4,
  */
 ROOT::RDF::RNode iso(ROOT::RDF::RNode df, const std::string &pt,
                      const std::string &eta, const std::string &year_id,
-                     const std::string &variation, const std::string &iso_output,
-                    const std::string &sf_file, const std::string &low_sf_file, 
-                    const std::string &idAlgorithm) {
-
-    Logger::get("muonIsoSF")->debug("Setting up functions for muon iso sf");
-    Logger::get("muonIsoSF")->debug("ISO - Name {}", idAlgorithm);
-    auto evaluator = correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
-    auto df1 = df.Define(
-        iso_output,
-        [evaluator, year_id, variation](const float &pt, const float &eta) {
-            Logger::get("muonIsoSF")->debug("ISO - pt {}, eta {}", pt, eta);
-            double sf = 1.;
-            // preventing muons with default values due to tau energy correction
-            // shifts below good tau pt selection
-            if (pt >= 15.0 && std::abs(eta) >= 0.0) {
-                sf = evaluator->evaluate(
-                    {std::abs(eta), pt, variation});
-            }
-            if (pt >= 0.0 && pt < 15.0 && std::abs(eta) >= 0.0) {
-                sf = 1.0;
-            }
-            return sf;
-        },
-        {pt, eta});
-    return df1;
-}
-///
-ROOT::RDF::RNode iso_vhmm(ROOT::RDF::RNode df, const std::string &p4, 
-                     const std::string &year_id,
                      const std::string &variation,
                      const std::string &iso_output, const std::string &sf_file,
                      const std::string &idAlgorithm) {
@@ -219,9 +185,7 @@ ROOT::RDF::RNode iso_vhmm(ROOT::RDF::RNode df, const std::string &p4,
         correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
     auto df1 = df.Define(
         iso_output,
-        [evaluator, year_id, variation](ROOT::Math::PtEtaPhiMVector &p4) {
-            const float &pt = p4.Pt();
-            const float &eta = p4.Eta();
+        [evaluator, year_id, variation](const float &pt, const float &eta) {
             Logger::get("muonIsoSF")->debug("ISO - pt {}, eta {}", pt, eta);
             double sf = 1.;
             // preventing muons with default values due to tau energy correction
@@ -232,10 +196,38 @@ ROOT::RDF::RNode iso_vhmm(ROOT::RDF::RNode df, const std::string &p4,
             }
             return sf;
         },
-        {p4});
+        {pt, eta});
     return df1;
 }
-///
+ROOT::RDF::RNode iso(ROOT::RDF::RNode df, const std::string &pt,
+                     const std::string &eta, //const std::string &year_id,
+                     const std::string &variation,
+                     const std::string &iso_output, const std::string &sf_file,
+                     const std::string &idAlgorithm) {
+
+    Logger::get("muonIsoSF")->debug("Setting up functions for muon iso sf");
+    Logger::get("muonIsoSF")->debug("ISO - Name {}", idAlgorithm);
+    auto evaluator =
+        correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
+    auto df1 = df.Define(
+        iso_output,
+        //[evaluator, year_id, variation](const float &pt, const float &eta) {
+        [evaluator, variation](const float &pt, const float &eta) {
+            Logger::get("muonIsoSF")->debug("ISO - pt {}, eta {}", pt, eta);
+            double sf = 1.;
+            // preventing muons with default values due to tau energy correction
+            // shifts below good tau pt selection
+            if (pt >= 0.0 && std::abs(eta) >= 0.0) {
+                sf = evaluator->evaluate(
+                    //{year_id, std::abs(eta), pt, variation});
+                    {std::abs(eta), pt, variation});
+            }
+            return sf;
+        },
+        {pt, eta});
+    return df1;
+}
+///ahhhh
 } // namespace muon
 namespace tau {
 /**
@@ -898,36 +890,6 @@ ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &pt,
         {pt, eta});
     return df1;
 }
-///
-ROOT::RDF::RNode id_e_vhmm(ROOT::RDF::RNode df,
-                    const std::string &p4, const std::string &year_id,
-                    const std::string &wp, const std::string &variation,
-                    const std::string &id_output, const std::string &sf_file,
-                    const std::string &idAlgorithm) {
-
-    Logger::get("electronIDSF")
-        ->debug("Setting up functions for electron id sf with correctionlib");
-    Logger::get("electronIDSF")->debug("ID - Name {}", idAlgorithm);
-    auto evaluator =
-        correction::CorrectionSet::from_file(sf_file)->at(idAlgorithm);
-    auto df1 = df.Define(
-        id_output,
-        [evaluator, year_id, idAlgorithm, wp, variation](ROOT::Math::PtEtaPhiMVector &p4) {
-            const float &pt = p4.Pt();
-            const float &eta = p4.Eta();
-            Logger::get("electronIDSF")
-                ->debug("Year {}, Name {}, WP {}", year_id, idAlgorithm, wp);
-            Logger::get("electronIDSF")->debug("ID - pt {}, eta {}", pt, eta);
-            double sf = 1.;
-            if (pt >= 0.0) {
-                sf = evaluator->evaluate({year_id, variation, wp, eta, pt});
-            }
-            Logger::get("electronIDSF")->debug("Scale Factor {}", sf);
-            return sf;
-        },
-        {p4});
-    return df1;
-}
 
 } // namespace electron
 namespace jet {
@@ -1210,6 +1172,61 @@ ROOT::RDF::RNode electron_sf(ROOT::RDF::RNode df, const std::string &pt,
             return sf;
         },
         {pt, eta});
+    return df1;
+}
+/**
+ * @brief Function to evaluate the di-tau trigger or etau/mutau cross trigger
+ * scale factor for embedded events from a xpog file
+ *
+ * @param df the input dataframe
+ * @param pt the name of the column containing the tau pt variable
+ * @param decaymode the name of the column containing the tau decay mode
+ * variable
+ * @param output name of the scale factor column
+ * @param wp the name of the the tau id working point VVVLoose-VVTight
+ * @param sf_file path to the file with the tau trigger scale factors
+ * @param type the type of the tau trigger, available are "ditau", "etau",
+ * "mutau", "ditauvbf"
+ * @param corrtype name of the tau trigger correction type, available are
+ * "eff_data", "eff_mc", "sf"
+ * @param syst name of the systematic variation, options are "nom", "up", "down"
+ * @return ROOT::RDF::RNode a new dataframe containing the new sf column
+ */
+
+ROOT::RDF::RNode
+ditau_trigger_sf(ROOT::RDF::RNode df, const std::string &pt,
+                 const std::string &decaymode, const std::string &output,
+                 const std::string &wp, const std::string &sf_file,
+                 const std::string &type, const std::string &corrtype,
+                 const std::string &syst) {
+
+    Logger::get("ditau_trigger")
+        ->debug("Setting up function for di-tau trigger sf");
+    Logger::get("ditau_trigger")
+        ->debug("correction type {}, file {}", corrtype, sf_file);
+    // tauTriggerSF is the only correction set in the file for now, might change
+    // with official sf release -> change into additional input parameter
+    auto evaluator =
+        correction::CorrectionSet::from_file(sf_file)->at("tauTriggerSF");
+    Logger::get("ditau_trigger")->debug("WP {} - trigger type {}", wp, type);
+    auto trigger_sf_calculator = [evaluator, wp, type, corrtype,
+                                  syst](const float &pt, const int &decaymode) {
+        float sf = 1.;
+        Logger::get("ditau_trigger")
+            ->debug("decaymode {}, pt {}", decaymode, pt);
+        if (pt > 0) {
+            if (decaymode == 0 || decaymode == 1 || decaymode == 10 ||
+                decaymode == 11) {
+                sf = evaluator->evaluate(
+                    {pt, decaymode, type, wp, corrtype, syst});
+            } else {
+                sf = evaluator->evaluate({pt, -1, type, wp, corrtype, syst});
+            }
+        }
+        Logger::get("ditau_trigger")->debug("Scale Factor {}", sf);
+        return sf;
+    };
+    auto df1 = df.Define(output, trigger_sf_calculator, {pt, decaymode});
     return df1;
 }
 } // namespace embedding

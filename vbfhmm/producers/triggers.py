@@ -39,10 +39,10 @@ GenerateSingleMuonTriggerFlagsForDiMuChannel = ExtendedVectorProducer(
     scope=["gghmm","vbfhmm","e2m","eemm","nnmm","fjmm"],
     vec_config="singlemuon_trigger",
 )
-# add by jiahua use double muon trigger
-GenerateDoubleMuonTriggerFlagsForDiMuChannel = ExtendedVectorProducer(
-    name="GenerateDoubleMuonTriggerFlagsForDiMuChannel",
-    call='trigger::GenerateDoubleTriggerANDFlag({df}, {output}, {input}, "{hlt_path}", {pt1cut}, {pt2cut}, {etacut}, {etacut}, {trigger_particle_id}, {trigger_particle_id}, {filterbit}, {filterbit}, {max_deltaR_triggermatch} )',
+###
+GenerateSingleMuonTriggerFlagsForDiMuChannel_2022 = ExtendedVectorProducer(
+    name="GenerateSingleMuonTriggerFlagsForDiMuChannel_2022",
+    call='trigger::GenerateDoubleTriggerORFlag_2022({df}, {output}, {input}, "{hlt_path}", {ptcut}, {ptcut}, {etacut}, {etacut}, {trigger_particle_id}, {trigger_particle_id}, {filterbit}, {filterbit}, {max_deltaR_triggermatch} )',
     input=[
         q.muon_p4_1,
         q.muon_p4_2,
@@ -54,7 +54,7 @@ GenerateDoubleMuonTriggerFlagsForDiMuChannel = ExtendedVectorProducer(
     ],
     output="flagname",
     scope=["gghmm","vbfhmm","e2m","eemm","nnmm","fjmm"],
-    vec_config="doublemuon_trigger",
+    vec_config="singlemuon_trigger",
 )
 GenerateSingleMuonTriggerFlagsForQuadMuChannel = ExtendedVectorProducer(
     name="GenerateSingleMuonTriggerFlagsForQuadMuChannel",

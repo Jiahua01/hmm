@@ -62,7 +62,6 @@ int main(int argc, char *argv[]) {
     int nevents = 0;
     int sumw_num = 0;
     Double_t sumofgenweight = 0;
-    std::ofstream outputfail("/afs/cern.ch/user/j/jiahua/CROWN/build/bin/fail.txt",std::ofstream::app);
     Logger::get("main")->info("Checking input files");
     std::string basetree = "Events";
     for (int i = 2; i < argc; i++) {
@@ -74,7 +73,6 @@ int main(int argc, char *argv[]) {
             Logger::get("main")->critical("File {} does not exist or is not "
                                           "readable",
                                           argv[i]);
-            outputfail << "./vbfhmm " << argv[1] << " " << argv[i] << std::endl; 
             return 1;
         }
         // Get a list of all keys in the file
@@ -121,6 +119,7 @@ int main(int argc, char *argv[]) {
 
     // initialize df
     ROOT::RDataFrame df0(basetree, input_files);
+    // ROOT::RDF::Experimental::AddProgressBar(df0); ROOT 6.30 not available for CS8 on lcg
     Logger::get("main")->info("Starting Setup of Dataframe with {} events",
                               nevents);
     std::vector<ROOT::RDF::RResultPtr<ROOT::RDF::RCutFlowReport>> cutReports;
@@ -189,6 +188,11 @@ int main(int argc, char *argv[]) {
             cutflow.SetTitle("cutflow");
             // iterate through the cutflow vector and fill the histogram with the
             // .GetPass() values
+            if (scope_counter >= cutReports.size()) {
+                Logger::get("main")->critical(
+                    "Cutflow vector is too small, this should not happen");
+                return 1;
+            }
             for (auto cut = cutReports[scope_counter].begin();
                 cut != cutReports[scope_counter].end(); cut++) {
                 cutflow.SetBinContent(

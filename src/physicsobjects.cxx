@@ -3,6 +3,8 @@
 
 #include "../include/defaults.hxx"
 #include "../include/RoccoR.hxx"
+#include "../include/Crystal.hxx"
+#include "../include/MuonScaRe.hxx"
 #include "../include/basefunctions.hxx"
 #include "../include/utility/Logger.hxx"
 #include "../include/utility/utility.hxx"
@@ -1005,19 +1007,33 @@ ROOT::RDF::RNode MaxMetCut(ROOT::RDF::RNode df, const std::string &outputname,
 
 ////
 /// function to pick dimuon Gen pair from Higgs
+// ROOT::RDF::RNode HiggsCandDiMuonGenPairCollection(ROOT::RDF::RNode df, const std::string &outputname,
+//                                  const std::string &Muon_indexToGen,
+//                                  const std::string &dimuon_index) {
+//     auto RecoToGen = [](const ROOT::RVec<int> &Muon_indexToGen,
+//                                const ROOT::RVec<int> &dimuon_index) {
+//                                  int index1 = -1,index2 = -1;
+//                                  index1 = Muon_indexToGen.at(dimuon_index[0]);
+//                                  index2 = Muon_indexToGen.at(dimuon_index[1]);
+//                                  ROOT::RVec<int> DiMuonGenPair = {index1, index2};
+//                                  return DiMuonGenPair; // Two gen muon index 
+//                              };
+//     auto df1 = 
+//         df.Define(outputname, RecoToGen, {Muon_indexToGen, dimuon_index});
+//     return df1;
+// }
 ROOT::RDF::RNode HiggsCandDiMuonGenPairCollection(ROOT::RDF::RNode df, const std::string &outputname,
-                                 const std::string &Muon_indexToGen,
-                                 const std::string &dimuon_index) {
-    auto RecoToGen = [](const ROOT::RVec<int> &Muon_indexToGen,
-                               const ROOT::RVec<int> &dimuon_index) {
-                                 int index1 = -1,index2 = -1;
-                                 index1 = Muon_indexToGen.at(dimuon_index[0]);
-                                 index2 = Muon_indexToGen.at(dimuon_index[1]);
-                                 ROOT::RVec<int> DiMuonGenPair = {index1, index2};
-                                 return DiMuonGenPair; // Two gen muon index 
-                             };
-    auto df1 = 
-        df.Define(outputname, RecoToGen, {Muon_indexToGen, dimuon_index});
+                                                  const std::string &Muon_indexToGen,
+                                                  const std::string &dimuon_index) {
+    auto RecoToGen = [](const ROOT::RVec<Short_t> &Muon_indexToGen,
+                        const ROOT::RVec<int> &dimuon_index) {
+        int index1 = static_cast<int>(Muon_indexToGen.at(dimuon_index[0]));
+        int index2 = static_cast<int>(Muon_indexToGen.at(dimuon_index[1]));
+        ROOT::RVec<int> DiMuonGenPair = {index1, index2};
+        return DiMuonGenPair; // Return vector<int> of gen muon indices
+    };
+
+    auto df1 = df.Define(outputname, RecoToGen, {Muon_indexToGen, dimuon_index});
     return df1;
 }
 ///
@@ -1818,6 +1834,23 @@ ROOT::RDF::RNode CheckForDiLeptonPairs(
     return df1;
 }
 
+/// Function to select objects based on matching a specific integer value
+///
+/// \param[in] df the input dataframe
+/// \param[out] maskname the name of the new mask to be added as column to
+/// the dataframe
+/// \param[in] nameID name of the ID column in the NanoAOD
+/// \param[in] IDvalue value that has to match
+///
+/// \return a dataframe containing the new mask
+ROOT::RDF::RNode SelectInt(ROOT::RDF::RNode df, const std::string &maskname,
+                         const std::string &nameID, const int &IDvalue) {
+    auto df1 =
+        df.Define(maskname, basefunctions::FilterEqualInt(IDvalue), {nameID});
+    return df1;
+}
+///###
+
 /// Muon specific functions
 namespace muon {
 /// Function to cut on muons based on the muon ID
@@ -2016,6 +2049,211 @@ applyRoccoRMC(ROOT::RDF::RNode df, const std::string &outputname,
                       phiColumn, genPtColumn, nTrackerLayersColumn,
                       rndmColumn});
 }
+/// Function to create a column of Rochester correction applied transverse
+// 2022 nTrackerLayers is unit8 
+// https://github.com/cms-sw/cmssw/blob/43944b8074465f15907d5f89d6d24e2cb1f6bc86/PhysicsTools/NanoAOD/python/muons_cff.py#L169C9-L169C159
+ROOT::RDF::RNode
+applyRoccoRMC_2022(ROOT::RDF::RNode df, const std::string &outputname,
+              const std::string &filename, const int &position,
+              const std::string &objCollection, const std::string &chargColumn,
+              const std::string &ptColumn, const std::string &etaColumn,
+              const std::string &phiColumn, const std::string &genPtColumn,
+              const std::string &nTrackerLayersColumn,
+              const std::string &rndmColumn, int error_set, int error_member) {
+    RoccoR rc(filename);
+    auto lambda = [rc, position, error_set, error_member](
+                      const ROOT::RVec<int> &objects,
+                      const ROOT::RVec<int> &chargCol,
+                      const ROOT::RVec<float> &ptCol,
+                      const ROOT::RVec<float> &etaCol,
+                      const ROOT::RVec<float> &phiCol, const float &genPt,
+                      const ROOT::RVec<UChar_t> &nTrackerLayersCol,
+                      const ROOT::RVec<float> &rndmCol) {
+        double pt_rc = default_float;
+        const int index = objects.at(position);
+        //int n_lay = static_cast<int>(nTrackerLayersCol.at(index));
+        if (genPt > 0.) {
+            pt_rc = ptCol.at(index) *
+                    rc.kSpreadMC(chargCol.at(index), ptCol.at(index),
+                                 etaCol.at(index), phiCol.at(index), genPt,
+                                 error_set, error_member);
+        } else {
+            pt_rc = ptCol.at(index) *
+                    rc.kSmearMC(chargCol.at(index), ptCol.at(index),
+                                etaCol.at(index), phiCol.at(index),
+                                nTrackerLayersCol.at(index),
+                                rndmCol.at(position), error_set, error_member);
+        }
+
+        return pt_rc;
+    };
+
+    return df.Define(outputname, lambda,
+                     {objCollection, chargColumn, ptColumn, etaColumn,
+                      phiColumn, genPtColumn, nTrackerLayersColumn,
+                      rndmColumn});
+}
+////ahhhh
+
+//Using the muon scale factor from KIT json file. Seperate MC and data 
+ROOT::RDF::RNode applyMuonScaReMC(ROOT::RDF::RNode df,
+                                  const std::string &outputname,
+                                  const std::string &jsonfile,
+                                  const int &position,
+                                  const std::string &objCollection,
+                                  const std::string &chargeCol,
+                                  const std::string &ptCol,
+                                  const std::string &etaCol,
+                                  const std::string &phiCol,
+                                  const std::string &nLCol
+                                )
+{
+    auto muonscare = std::make_shared<MuonScaRe>(jsonfile);
+
+    auto lambda = [muonscare, position](const ROOT::RVec<int> &obj_idx,
+                                        const ROOT::RVec<int> &chargeVec,
+                                        const ROOT::RVec<float> &ptVec,
+                                        const ROOT::RVec<float> &etaVec,
+                                        const ROOT::RVec<float> &phiVec,
+                                        const ROOT::RVec<int> &nLVec) {
+        double pt_corr = -999.;
+        const int idx = obj_idx.at(position);
+
+        double pt = ptVec.at(idx);
+        double eta = etaVec.at(idx);
+        double phi = phiVec.at(idx);
+        int charge = chargeVec.at(idx);
+        float nL = nLVec.at(idx);
+
+        double pt_scaled = muonscare->pt_scale(false, pt, eta, phi, charge);
+        return muonscare->pt_resol(pt_scaled, eta, nL); // SpreadMC 相当于 resol with genPt
+    };
+
+    return df.Define(outputname, lambda,
+                     {objCollection, chargeCol, ptCol, etaCol, phiCol,
+                     nLCol});
+}
+//Using the muon scale factor from KIT json file. Seperate MC and data 
+ROOT::RDF::RNode applyMuonScaReData(ROOT::RDF::RNode df,
+                                  const std::string &outputname,
+                                  const std::string &jsonfile,
+                                  const int &position,
+                                  const std::string &objCollection,
+                                  const std::string &chargeCol,
+                                  const std::string &ptCol,
+                                  const std::string &etaCol,
+                                  const std::string &phiCol
+                                )
+{
+    auto muonscare = std::make_shared<MuonScaRe>(jsonfile);
+
+    auto lambda = [muonscare, position](const ROOT::RVec<int> &obj_idx,
+                                        const ROOT::RVec<int> &chargeVec,
+                                        const ROOT::RVec<float> &ptVec,
+                                        const ROOT::RVec<float> &etaVec,
+                                        const ROOT::RVec<float> &phiVec) {
+        double pt_corr = -999.;
+        const int idx = obj_idx.at(position);
+
+        double pt = ptVec.at(idx);
+        double eta = etaVec.at(idx);
+        double phi = phiVec.at(idx);
+        int charge = chargeVec.at(idx);
+
+        return muonscare->pt_scale(false, pt, eta, phi, charge);
+
+    };
+
+    return df.Define(outputname, lambda,
+                     {objCollection, chargeCol, ptCol, etaCol, phiCol});
+}
+//calculate the uncertainty of corrected muon pt , seperated for MC and data
+ROOT::RDF::RNode applyMuonScaReData_Err(
+                                  ROOT::RDF::RNode df,
+                                  const std::string &outputname,
+                                  const std::string &jsonfile,
+                                  const int &position,
+                                  const std::string &objCollection,
+                                  const std::string &ptCol,
+                                  const std::string &etaCol,
+                                  const std::string &phiCol,
+                                  const std::string &chargeCol
+)
+{
+    auto muonscare = std::make_shared<MuonScaRe>(jsonfile);
+
+    auto df1 = df.Define(outputname,
+        [muonscare, position](const ROOT::RVec<int> &obj_idx,
+                              const ROOT::RVec<float> &ptVec,
+                              const ROOT::RVec<float> &etaVec,
+                              const ROOT::RVec<float> &phiVec,
+                              const ROOT::RVec<int> &chargeVec) {
+
+            const int idx = obj_idx.at(position);
+
+            float pt = ptVec.at(idx);
+            float eta    = etaVec.at(idx);
+            float phi    = phiVec.at(idx);
+            int charge   = chargeVec.at(idx);
+
+            double pt_nom = muonscare->pt_scale(true, pt, eta, phi, charge);
+            double pt_up = muonscare->pt_scale_var(pt_nom, eta, phi, charge, std::string("up"));
+
+            return std::abs(pt_up - pt_nom);
+        },
+        {objCollection, ptCol, etaCol, phiCol, chargeCol});
+
+    return df1;
+}
+
+ROOT::RDF::RNode applyMuonScaReMC_Err(
+                                  ROOT::RDF::RNode df,
+                                  const std::string &outputname,
+                                  const std::string &jsonfile,
+                                  const int &position,
+                                  const std::string &objCollection,
+                                  const std::string &ptCol,
+                                  const std::string &etaCol,
+                                  const std::string &phiCol,
+                                  const std::string &chargeCol,
+                                  const std::string &nLCol
+)
+{
+    auto muonscare = std::make_shared<MuonScaRe>(jsonfile);
+
+    auto df1 = df.Define(outputname,
+        [muonscare, position](const ROOT::RVec<int> &obj_idx,
+                              const ROOT::RVec<float> &ptVec,
+                              const ROOT::RVec<float> &etaVec,
+                              const ROOT::RVec<float> &phiVec,
+                              const ROOT::RVec<int> &chargeVec,
+                              const ROOT::RVec<int> &nLVec
+                            ) {
+
+            const int idx = obj_idx.at(position);
+
+            float pt    = ptVec.at(idx);
+            float eta    = etaVec.at(idx);
+            float phi    = phiVec.at(idx);
+            int charge   = chargeVec.at(idx);
+            float nL = nLVec.at(idx);
+
+            double scaled = muonscare->pt_scale(false, pt, eta, phi, charge);
+            double smeared = muonscare->pt_resol(scaled, eta, nL);
+            double pt_up = muonscare->pt_resol_var(scaled, smeared, eta, std::string("up"));
+
+            return std::abs(pt_up - smeared);
+        },
+        {objCollection, ptCol, etaCol, phiCol, chargeCol, nLCol});
+
+    return df1;
+}
+
+} // end namespace muon
+/// Tau specific functions
+namespace tau {
+/// Function to cut on taus based on the tau decay mode
+////ahhhh
 } // end namespace muon
 /// Tau specific functions
 namespace tau {
@@ -2366,6 +2604,56 @@ PtCorrection_byValue(ROOT::RDF::RNode df, const std::string &corrected_pt,
         df.Define(corrected_pt, electron_pt_correction_lambda, {pt, eta});
     return df1;
 }
+/// Function to correct electron pt, based on correctionlib file
+///
+/// \param[in] df the input dataframe
+/// \param[out] corrected_pt name of the corrected tau pt to be calculated
+/// \param[in] pt name of the raw tau pt
+/// \param[in] eta name of raw tau eta
+/// \param[in] sf_barrel scale factor to be applied to electrons in the barrel
+/// \param[in] sf_endcap scale factor to be applied to electrons in the endcap
+/// \param[in] sf_file:
+/// \param[in] jsonESname name of the tau energy correction in the json file
+///
+/// \return a dataframe containing the new mask
+ROOT::RDF::RNode
+PtCorrection(ROOT::RDF::RNode df, const std::string &corrected_pt,
+                    const std::string &pt, const std::string &eta,
+                    const std::string &sf_barrel, const std::string &sf_endcap,
+                    const std::string &sf_file, const std::string &jsonESname) {
+    auto evaluator =
+        correction::CorrectionSet::from_file(sf_file)->at(jsonESname);
+    auto electron_pt_correction_lambda =
+        [evaluator, sf_barrel, sf_endcap](const ROOT::RVec<float> &pt_values,
+                                        const ROOT::RVec<float> &eta) {
+            ROOT::RVec<float> corrected_pt_values(pt_values.size());
+            for (int i = 0; i < pt_values.size(); i++) {
+                if (abs(eta.at(i)) <= 1.479) {
+                    auto sf = evaluator->evaluate(
+                        {"barrel", sf_barrel});
+                    corrected_pt_values[i] = pt_values.at(i) * sf;
+                    Logger::get("eleEnergyCorrection")
+                ->debug("barrel: ele pt before {}, ele pt after {}, sf {}",
+                        pt_values.at(i), corrected_pt_values.at(i),
+                        sf);
+                } else if (abs(eta.at(i)) > 1.479) {
+                    auto sf = evaluator->evaluate(
+                        {"endcap", sf_endcap});
+                    corrected_pt_values[i] = pt_values.at(i) * sf;
+                    Logger::get("eleEnergyCorrection")
+                ->debug("endcap: ele pt before {}, ele pt after {}, sf {}",
+                        pt_values.at(i), corrected_pt_values.at(i),
+                        sf);
+                } else {
+                    corrected_pt_values[i] = pt_values.at(i);
+                }
+            }
+            return corrected_pt_values;
+        };
+    auto df1 = df.Define(corrected_pt, electron_pt_correction_lambda, {pt, eta});
+    return df1;
+}
+////$$$$##
 /// Function to cut electrons based on the electron MVA ID
 ///
 /// \param[in] df the input dataframe

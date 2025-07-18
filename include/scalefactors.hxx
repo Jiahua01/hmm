@@ -19,20 +19,18 @@ ROOT::RDF::RNode iso_rooworkspace(ROOT::RDF::RNode df, const std::string &pt,
 ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &pt,
                     const std::string &eta, const std::string &year_id,
                     const std::string &variation, const std::string &id_output,
-                    const std::string &sf_file, const std::string &low_sf_file, 
-                    const std::string &idAlgorithm);
-ROOT::RDF::RNode id_vhmm(ROOT::RDF::RNode df, const std::string &p4, 
-                    const std::string &year_id,
+                    const std::string &sf_file, const std::string &idAlgorithm);
+ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &pt,
+                    const std::string &eta, //const std::string &year_id,
                     const std::string &variation, const std::string &id_output,
-                    const std::string &sf_file,
-                    const std::string &idAlgorithm);
+                    const std::string &sf_file, const std::string &idAlgorithm);
 ROOT::RDF::RNode iso(ROOT::RDF::RNode df, const std::string &pt,
                      const std::string &eta, const std::string &year_id,
-                     const std::string &variation, const std::string &iso_output, 
-                     const std::string &sf_file, const std::string &low_sf_file, 
+                     const std::string &variation,
+                     const std::string &iso_output, const std::string &sf_file,
                      const std::string &idAlgorithm);
-ROOT::RDF::RNode iso_vhmm(ROOT::RDF::RNode df, const std::string &p4, 
-                     const std::string &year_id,
+ROOT::RDF::RNode iso(ROOT::RDF::RNode df, const std::string &pt,
+                     const std::string &eta, //const std::string &year_id,
                      const std::string &variation,
                      const std::string &iso_output, const std::string &sf_file,
                      const std::string &idAlgorithm);
@@ -101,11 +99,6 @@ ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &pt,
                     const std::string &wp, const std::string &variation,
                     const std::string &id_output, const std::string &sf_file,
                     const std::string &idAlgorithm);
-ROOT::RDF::RNode id_e_vhmm(ROOT::RDF::RNode df,
-                    const std::string &p4, const std::string &year_id,
-                    const std::string &wp, const std::string &variation,
-                    const std::string &id_output, const std::string &sf_file,
-                    const std::string &idAlgorithm);
 } // namespace electron
 
 namespace jet {
@@ -141,6 +134,12 @@ ROOT::RDF::RNode electron_sf(ROOT::RDF::RNode df, const std::string &pt,
                              const std::string correctiontype,
                              const std::string &idAlgorithm,
                              const float &extrapolation_factor = 1.0);
+ROOT::RDF::RNode
+ditau_trigger_sf(ROOT::RDF::RNode df, const std::string &pt,
+                 const std::string &decaymode, const std::string &output,
+                 const std::string &wp, const std::string &sf_file,
+                 const std::string &type, const std::string &corrtype,
+                 const std::string &syst);
 } // namespace embedding
 } // namespace scalefactor
 #endif /* GUARD_SCALEFACTORS_H */

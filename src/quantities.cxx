@@ -15,7 +15,7 @@
 /// The namespace that is used to hold the functions for basic quantities that
 /// are needed for every event
 namespace quantities {
-///
+
 /// funciton to calc mT contains MHT
 ROOT::RDF::RNode mT_MHT(ROOT::RDF::RNode df, const std::string &outputname,
                     const std::string &particle_p4, const std::string &met) {
@@ -194,23 +194,23 @@ ROOT::RDF::RNode charge(ROOT::RDF::RNode df, const std::string &outputname,
         },
         {pairname, chargecolumn});
 }
-/// Function to calculate the scalar sum of pts for given lorentz vectors and add it to the
-/// dataframe
+/// Function to calculate the scalar sum of pts for given lorentz vectors and
+/// add it to the dataframe
 ///
 /// \param df the dataframe to add the quantity to
 /// \param outputname name of the new column containing the pt value
-/// \param inputvector name of the column containing the lorentz vector
-///
+/// \param pt_1 name of the column containing the first lorentz vector
+/// \param pt_2 name of the column containing the second lorentz vector
+/// \param pt_3 name of the column containing the third lorentz vector
 /// \returns a dataframe with the new column
 
 ROOT::RDF::RNode scalarPtSum(ROOT::RDF::RNode df, const std::string &outputname,
-                       const std::string &pt_1, const std::string &pt_2, const std::string &pt_3) {
+                             const std::string &pt_1, const std::string &pt_2,
+                             const std::string &pt_3) {
     // build scalar sum of pts of 3 objects
     return df.Define(
         outputname,
-        [](const float &pt_1,
-           const float &pt_2, const float &pt_3) {
-            //if (pt_3 < 0.0 || pt_3 < 0.0 || pt_3 < 0.0)
+        [](const float &pt_1, const float &pt_2, const float &pt_3) {
             if (pt_1 < 0.0 || pt_2 < 0.0 || pt_3 < 0.0)
                 return default_float;
             auto const triple_lepton_pt = pt_1 + pt_2 + pt_3;
@@ -219,7 +219,7 @@ ROOT::RDF::RNode scalarPtSum(ROOT::RDF::RNode df, const std::string &outputname,
         {pt_1, pt_2, pt_3});
 }
 /**
- * @brief function used to calculate the deltaPhi between two lorentz vectors. $\phi_1$ is from the first lorentz vector and $\phi_2$ is from the second lorentz vector.
+ * @brief function used to calculate the deltaPhi between two lorentz vectors.
  *
  * @param df name of the dataframe
  * @param outputname name of the new column containing the deltaR value
@@ -228,15 +228,17 @@ ROOT::RDF::RNode scalarPtSum(ROOT::RDF::RNode df, const std::string &outputname,
  * @return a new dataframe with the new column
  */
 ROOT::RDF::RNode deltaPhi(ROOT::RDF::RNode df, const std::string &outputname,
-                        const std::string &p_1_p4, const std::string &p_2_p4) {
+                          const std::string &p_1_p4,
+                          const std::string &p_2_p4) {
     auto calculate_deltaPhi = [](ROOT::Math::PtEtaPhiMVector &p_1_p4,
-                               ROOT::Math::PtEtaPhiMVector &p_2_p4) {
+                                 ROOT::Math::PtEtaPhiMVector &p_2_p4) {
         return ROOT::Math::VectorUtil::DeltaPhi(p_1_p4, p_2_p4);
     };
     return df.Define(outputname, calculate_deltaPhi, {p_1_p4, p_2_p4});
 }
 /**
- * @brief function used to calculate the deltaPhi between the lepton from a W and the visible Higgs decay products. $\phi_1$ is from the first lorentz vector and $\phi_2$ is from the second lorentz vector and \phi_3$ is from the third lorentz vector.
+ * @brief function used to calculate the deltaPhi between the lepton from a W
+ * and the visible Higgs decay products.
  *
  * @param df name of the dataframe
  * @param outputname name of the new column containing the deltaR value
@@ -246,9 +248,12 @@ ROOT::RDF::RNode deltaPhi(ROOT::RDF::RNode df, const std::string &outputname,
  * @return a new dataframe with the new column
  */
 ROOT::RDF::RNode deltaPhi_WH(ROOT::RDF::RNode df, const std::string &outputname,
-                        const std::string &p_1_p4, const std::string &p_2_p4, const std::string &p_3_p4) {
+                             const std::string &p_1_p4,
+                             const std::string &p_2_p4,
+                             const std::string &p_3_p4) {
     auto calculate_deltaPhi = [](ROOT::Math::PtEtaPhiMVector &p_1_p4,
-                               ROOT::Math::PtEtaPhiMVector &p_2_p4, ROOT::Math::PtEtaPhiMVector &p_3_p4) {
+                                 ROOT::Math::PtEtaPhiMVector &p_2_p4,
+                                 ROOT::Math::PtEtaPhiMVector &p_3_p4) {
         auto const dileptonsystem = p_2_p4 + p_3_p4;
         return ROOT::Math::VectorUtil::DeltaPhi(p_1_p4, dileptonsystem);
     };
@@ -405,7 +410,8 @@ ROOT::RDF::RNode pt_vis(ROOT::RDF::RNode df, const std::string &outputname,
         },
         inputvectors);
 }
-/// Function to calculate the pt of the W from a the visible lepton fourvector, the met four vector and the neutrino four vector from the Higgs system and
+/// Function to calculate the pt of the W from a the visible lepton fourvector,
+/// the met four vector and the neutrino four vector from the Higgs system and
 /// add it to the dataframe.
 ///
 /// \param df the dataframe to add the quantity to
@@ -416,7 +422,7 @@ ROOT::RDF::RNode pt_vis(ROOT::RDF::RNode df, const std::string &outputname,
 /// \returns a dataframe with the new column
 
 ROOT::RDF::RNode pt_W(ROOT::RDF::RNode df, const std::string &outputname,
-                        const std::vector<std::string> &inputvectors) {
+                      const std::vector<std::string> &inputvectors) {
     // build visible pt from the two particles
     return df.Define(
         outputname,
@@ -512,8 +518,9 @@ ROOT::RDF::RNode mTdileptonMET(ROOT::RDF::RNode df,
 
 /**
  * @brief function used to calculate the deltaR between two lorentz vectors. It
- is defined as \f[ \Delta R = \sqrt{(\eta_1 - \eta_2)^2 + (\phi_1 - \phi_2)^2}
- \f$ where $\eta_1$ and $\phi_1$ are from the first lorentz vector and $\eta_2$
+ is defined as
+ $\f[ \Delta R = \sqrt{(\eta_1 - \eta_2)^2 + (\phi_1 - \phi_2)^2} \f$
+ where $\eta_1$ and $\phi_1$ are from the first lorentz vector and $\eta_2$
  and $\phi_2$ are from the second lorentz vector.
  *
  * @param df name of the dataframe
@@ -706,12 +713,151 @@ ROOT::RDF::RNode ptErr(ROOT::RDF::RNode df, const std::string &outputname,
     return df.Define(outputname,
                      [position](const ROOT::RVec<int> &pair,
                                 const ROOT::RVec<float> &ptErr) {
-                         const int index = pair.at(position, -1);
+                         const int index = pair.at(position);
+                         //const int index = pair.at(position, -1);
                          return ptErr.at(index, default_float);
                      },
                      {pairname, ptErrcolumn});
 }
-//////
+/////
+
+/// Function to writeout the BSC_Chi2 of a particle. The particle is
+/// identified via the index stored in the pair vector
+///
+/// \param df the dataframe to add the quantity to
+/// \param outputname name of the new column containing the BSC_Chi2 value
+/// \param position index of the position in the pair vector
+/// \param pairname name of the column containing the pair vector
+/// \param BSC_Chi2column name of the column containing the BSC_Chi2 values
+///
+/// \returns a dataframe with the new column
+
+ROOT::RDF::RNode BSC_Chi2(ROOT::RDF::RNode df, const std::string &outputname,
+                           const int &position, const std::string &pairname,
+                           const std::string &BSC_Chi2column) {
+    return df.Define(outputname,
+                     [position](const ROOT::RVec<int> &pair,
+                                const ROOT::RVec<float> &BSC_Chi2) {
+                         const int index = pair.at(position);
+                         //const int index = pair.at(position, -1);
+                         return BSC_Chi2.at(index, default_float);
+                     },
+                     {pairname, BSC_Chi2column});
+}
+/////
+
+/// Function to writeout the BSC_pt of a particle. The particle is
+/// identified via the index stored in the pair vector
+///
+/// \param df the dataframe to add the quantity to
+/// \param outputname name of the new column containing the BSC_pt value
+/// \param position index of the position in the pair vector
+/// \param pairname name of the column containing the pair vector
+/// \param BSC_ptcolumn name of the column containing the BSC_pt values
+///
+/// \returns a dataframe with the new column
+
+ROOT::RDF::RNode BSC_pt(ROOT::RDF::RNode df, const std::string &outputname,
+                           const int &position, const std::string &pairname,
+                           const std::string &BSC_ptcolumn) {
+    return df.Define(outputname,
+                     [position](const ROOT::RVec<int> &pair,
+                                const ROOT::RVec<float> &BSC_pt) {
+                         const int index = pair.at(position);
+                         //const int index = pair.at(position, -1);
+                         return BSC_pt.at(index, default_float);
+                     },
+                     {pairname, BSC_ptcolumn});
+}
+/////
+
+/// Function to writeout the BSC_ptErr of a particle. The particle is
+/// identified via the index stored in the pair vector
+///
+/// \param df the dataframe to add the quantity to
+/// \param outputname name of the new column containing the BSC_ptErr value
+/// \param position index of the position in the pair vector
+/// \param pairname name of the column containing the pair vector
+/// \param BSC_ptErrcolumn name of the column containing the BSC_ptErr values
+///
+/// \returns a dataframe with the new column
+
+ROOT::RDF::RNode BSC_ptErr(ROOT::RDF::RNode df, const std::string &outputname,
+                           const int &position, const std::string &pairname,
+                           const std::string &BSC_ptErrcolumn) {
+    return df.Define(outputname,
+                     [position](const ROOT::RVec<int> &pair,
+                                const ROOT::RVec<float> &BSC_ptErr) {
+                         const int index = pair.at(position);
+                         //const int index = pair.at(position, -1);
+                         return BSC_ptErr.at(index, default_float);
+                     },
+                     {pairname, BSC_ptErrcolumn});
+}
+/////
+
+/// Function to writeout the BSC_dxy of a particle. The particle is
+/// identified via the index stored in the pair vector
+///
+/// \param df the dataframe to add the quantity to
+/// \param outputname name of the new column containing the BSC_dxy value
+/// \param position index of the position in the pair vector
+/// \param pairname name of the column containing the pair vector
+/// \param BSC_dxycolumn name of the column containing the BSC_dxy values
+///
+/// \returns a dataframe with the new column
+
+ROOT::RDF::RNode BSC_dxy(ROOT::RDF::RNode df, const std::string &outputname,
+                           const int &position, const std::string &pairname,
+                           const std::string &BSC_dxycolumn) {
+    return df.Define(outputname,
+                     [position](const ROOT::RVec<int> &pair,
+                                const ROOT::RVec<float> &BSC_dxy) {
+                         const int index = pair.at(position);
+                         //const int index = pair.at(position, -1);
+                         return BSC_dxy.at(index, default_float);
+                     },
+                     {pairname, BSC_dxycolumn});
+}
+/////
+
+/// Function to writeout the BSC_dxy of a particle. The particle is
+/// identified via the index stored in the pair vector
+///
+/// \param df the dataframe to add the quantity to
+/// \param outputname name of the new column containing the BSC_dxy value
+/// \param position index of the position in the pair vector
+/// \param pairname name of the column containing the pair vector
+/// \param nTrackerLayers_column name of the column containing the BSC_dxy values
+///
+/// \returns a dataframe with the new column
+
+// ROOT::RDF::RNode nTrackerLayers(ROOT::RDF::RNode df, const std::string &outputname,
+//                            const int &position, const std::string &pairname,
+//                            const std::string &nTrackerLayers_column) {
+//     return df.Define(outputname,
+//                      [position](const ROOT::RVec<int> &pair,
+//                                 const ROOT::RVec<UChar_t> &nTrackerLayers) {
+//                          const int index = pair.at(position);
+//                          //const int index = pair.at(position, -1);
+//                          return nTrackerLayers.at(index, default_float);
+//                      },
+//                      {pairname, nTrackerLayers_column});
+// }
+ROOT::RDF::RNode nTrackerLayers(ROOT::RDF::RNode df, const std::string &outputname,
+                           const int &position, const std::string &pairname,
+                           const std::string &nTrackerLayers_column) {
+    return df.Define(outputname,
+                     [position](const ROOT::RVec<int> &pair,
+                                const ROOT::RVec<UChar_t> &nTrackerLayers) {
+                         if (position >= (int)pair.size()) return -1;
+                         int index = pair[position];
+                         if (index < 0 || index >= (int)nTrackerLayers.size()) return -1;
+                         return (int)nTrackerLayers[index];  // 返回 int 兼容性好
+                     },
+                     {pairname, nTrackerLayers_column});
+}
+/////
 
 /// Function to writeout the isolation of a particle. The particle is
 /// identified via the index stored in the pair vector
@@ -993,15 +1139,14 @@ ROOT::RDF::RNode is_global(ROOT::RDF::RNode df, const std::string &outputname,
  * @param outputname the name of the new quantity
  * @param position position of the muon in the pair vector
  * @param pairname name of the column containing the pair vector
- * @param trackerflagcolumn name of the column containing the muon is global flag
+ * @param trackerflagcolumn name of the column containing the muon is global
+ * flag
  * @return a dataframe with the new column
  */
 ROOT::RDF::RNode is_tracker(ROOT::RDF::RNode df, const std::string &outputname,
-                           const int &position, const std::string &pairname,
-                           const std::string &trackerflagcolumn) {
-    Logger::get("muonIsTrackerflag")
-                ->debug(
-                    "is tracker pos {}", position);
+                            const int &position, const std::string &pairname,
+                            const std::string &trackerflagcolumn) {
+    Logger::get("muonIsTrackerflag")->debug("is tracker pos {}", position);
     return df.Define(outputname,
                      [position](const ROOT::RVec<int> &pair,
                                 const ROOT::RVec<bool> &trackerflag) {
@@ -1025,9 +1170,7 @@ namespace electron {
 ROOT::RDF::RNode id(ROOT::RDF::RNode df, const std::string &outputname,
                     const int &position, const std::string &pairname,
                     const std::string &idcolumn) {
-    Logger::get("electronIDflag")
-                ->debug(
-                    "ele ID position {}", position);
+    Logger::get("electronIDflag")->debug("ele ID position {}", position);
     return df.Define(
         outputname,
         [position](const ROOT::RVec<int> &pair, const ROOT::RVec<bool> &id) {

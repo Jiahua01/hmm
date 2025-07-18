@@ -57,7 +57,7 @@ ROOT::RDF::RNode GenerateDoubleTriggerORFlag(
     const int &p2_trigger_particle_id_cut,  const int &p1_triggerbit_cut,
     const int &p2_triggerbit_cut, const float &DeltaR_threshold);
 
-ROOT::RDF::RNode GenerateDoubleTriggerANDFlag(
+ROOT::RDF::RNode GenerateDoubleTriggerORFlag_2022(
     ROOT::RDF::RNode df, const std::string &triggerflag_name,
     const std::string &particle1_p4, const std::string &particle2_p4, 
     const std::string &triggerobject_bits, const std::string &triggerobject_id,
@@ -67,6 +67,7 @@ ROOT::RDF::RNode GenerateDoubleTriggerANDFlag(
     const float &p2_eta_cut,  const int &p1_trigger_particle_id_cut,
     const int &p2_trigger_particle_id_cut,  const int &p1_triggerbit_cut,
     const int &p2_triggerbit_cut, const float &DeltaR_threshold);
+////
 
 ROOT::RDF::RNode GenerateQuadTriggerORFlag(
     ROOT::RDF::RNode df, const std::string &triggerflag_name,
@@ -78,6 +79,8 @@ ROOT::RDF::RNode GenerateQuadTriggerORFlag(
     const float &p1_eta_cut, const float &p2_eta_cut, const float &p3_eta_cut, const float &p4_eta_cut,
     const int &p1_trigger_particle_id_cut, const int &p2_trigger_particle_id_cut, const int &p3_trigger_particle_id_cut, const int &p4_trigger_particle_id_cut,
     const int &p1_triggerbit_cut, const int &p2_triggerbit_cut, const int &p3_triggerbit_cut, const int &p4_triggerbit_cut, const float &DeltaR_threshold);
+
+/////###
 
 ROOT::RDF::RNode MatchSingleTriggerObject(
     ROOT::RDF::RNode df, const std::string &triggerflag_name,
@@ -118,6 +121,15 @@ bool matchParticle(const ROOT::Math::PtEtaPhiMVector &particle,
                    const int &trigger_particle_id_cut,
                    const int &triggerbit_cut,
                    const float &trigger_particle_pt_cut);
+
+ROOT::RDF::RNode MatchSingleTriggerObject(
+    ROOT::RDF::RNode df, const std::string &triggerflag_name,
+    const std::string &particle_p4, const std::string &triggerobject_bits,
+    const std::string &triggerobject_id, const std::string &triggerobject_pt,
+    const std::string &triggerobject_eta, const std::string &triggerobject_phi,
+    const float &pt_cut, const float &eta_cut,
+    const int &trigger_particle_id_cut, const int &triggerbit_cut,
+    const float &DeltaR_threshold, const float &trigger_particle_pt_cut);
 
 ROOT::RDF::RNode GenerateSingleTriggerFlag(
     ROOT::RDF::RNode df, const std::string &triggerflag_name,

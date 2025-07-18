@@ -6,6 +6,96 @@ from code_generation.producer import Producer, ProducerGroup
 # Set of producers used for loosest selection of muons
 ####################
 
+BSC_Chi2_1 = Producer(
+    name="BSC_Chi2_1",
+    call="quantities::BSC_Chi2({df}, {output}, 0, {input})",
+    input=[q.dimuon_HiggsCand_collection, nanoAOD.Muon_bsConstrainedChi2],
+    output=[q.BSC_Chi2_1],
+    scopes=["vbfhmm"],
+)
+BSC_Chi2_2 = Producer(
+    name="BSC_Chi2_2",
+    call="quantities::BSC_Chi2({df}, {output}, 1, {input})",
+    input=[q.dimuon_HiggsCand_collection, nanoAOD.Muon_bsConstrainedChi2],
+    output=[q.BSC_Chi2_2],
+    scopes=["vbfhmm"],
+)
+
+BSC_pt_1 = Producer(
+    name="BSC_pt_1",
+    call="quantities::BSC_pt({df}, {output}, 0, {input})",
+    input=[q.dimuon_HiggsCand_collection, nanoAOD.Muon_bsConstrainedPt],
+    output=[q.BSC_pt_1],
+    scopes=["vbfhmm"],
+)
+BSC_pt_2 = Producer(
+    name="BSC_pt_2",
+    call="quantities::BSC_pt({df}, {output}, 1, {input})",
+    input=[q.dimuon_HiggsCand_collection, nanoAOD.Muon_bsConstrainedPt],
+    output=[q.BSC_pt_2],
+    scopes=["vbfhmm"],
+)
+
+BSC_ptErr_1 = Producer(
+    name="BSC_ptErr_1",
+    call="quantities::BSC_ptErr({df}, {output}, 0, {input})",
+    input=[q.dimuon_HiggsCand_collection, nanoAOD.Muon_bsConstrainedPtErr],
+    output=[q.BSC_ptErr_1],
+    scopes=["vbfhmm"],
+)
+BSC_ptErr_2 = Producer(
+    name="BSC_ptErr_2",
+    call="quantities::BSC_ptErr({df}, {output}, 1, {input})",
+    input=[q.dimuon_HiggsCand_collection, nanoAOD.Muon_bsConstrainedPtErr],
+    output=[q.BSC_ptErr_2],
+    scopes=["vbfhmm"],
+)
+
+BSC_dxy_1 = Producer(
+    name="BSC_dxy_1",
+    call="quantities::BSC_dxy({df}, {output}, 0, {input})",
+    input=[q.dimuon_HiggsCand_collection, nanoAOD.Muon_dxybs],
+    output=[q.BSC_dxy_1],
+    scopes=["vbfhmm"],
+)
+BSC_dxy_2 = Producer(
+    name="BSC_dxy_2",
+    call="quantities::BSC_dxy({df}, {output}, 1, {input})",
+    input=[q.dimuon_HiggsCand_collection, nanoAOD.Muon_dxybs],
+    output=[q.BSC_dxy_2],
+    scopes=["vbfhmm"],
+)
+
+mu1_charge = Producer(
+    name="mu1_charge",
+    call="quantities::charge({df}, {output}, 0, {input})",
+    input=[q.dimuon_HiggsCand_collection, nanoAOD.Muon_charge],
+    output=[q.mu1_charge],
+    scopes=["vbfhmm"],
+)
+mu2_charge = Producer(
+    name="mu2_charge",
+    call="quantities::charge({df}, {output}, 1, {input})",
+    input=[q.dimuon_HiggsCand_collection, nanoAOD.Muon_charge],
+    output=[q.mu2_charge],
+    scopes=["vbfhmm"],
+)
+
+Mu1_nTrackerLayers = Producer(
+    name="Mu1_nTrackerLayers",
+    call="quantities::nTrackerLayers({df}, {output}, 0, {input})",
+    input=[q.dimuon_HiggsCand_collection, nanoAOD.Muon_nTrackerLayers],
+    output=[q.mu1_nTrackerLayers],
+    scopes=["vbfhmm"],
+)
+Mu2_nTrackerLayers = Producer(
+    name="Mu2_nTrackerLayers",
+    call="quantities::nTrackerLayers({df}, {output}, 1, {input})",
+    input=[q.dimuon_HiggsCand_collection, nanoAOD.Muon_nTrackerLayers],
+    output=[q.mu2_nTrackerLayers],
+    scopes=["vbfhmm"],
+)
+
 Muon_pTErr_1 = Producer(
     name="Muon_pTErr_1",
     call="quantities::ptErr({df}, {output}, 0, {input})",
@@ -373,18 +463,4 @@ Mu2_Z_4m = Producer(
     ],
     output=[q.lepton_subleadingp4_Z],
     scopes=["mmmm"],
-)
-muon1_iso = Producer(
-    name="muon1_iso",
-    call="quantities::ptErr({df}, {output}, 0, {input})",
-    input=[q.good_muon_collection, nanoAOD.Muon_pfRelIso04_all],
-    output=[q.muon1_iso],
-    scopes=["vbfhmm"],
-)
-muon2_iso = Producer(
-    name="muon2_iso",
-    call="quantities::ptErr({df}, {output}, 1, {input})",
-    input=[q.good_muon_collection, nanoAOD.Muon_pfRelIso04_all],
-    output=[q.muon2_iso],
-    scopes=["vbfhmm"],
 )

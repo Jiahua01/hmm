@@ -1,33 +1,11 @@
 cmake_minimum_required(VERSION 3.20)
-# unset some cached variables
+# Unset some cached variables
 unset(CMAKE_BUILD_TYPE CACHE)
 unset(CMAKE_CXX_FLAGS_RELEASE CACHE)
 
-# Check that config name is given with -DANALYSIS, needed to generate the C++ code
-if (NOT DEFINED ANALYSIS)
-    message(FATAL_ERROR "Please specify the Analysis to be used with -DANALYSIS=my_analysis_name")
-endif()
-
-if (NOT DEFINED CONFIG)
-    message(FATAL_ERROR "Please specify the config to be used with -DCONFIG=my_config_name")
-endif()
-
-if (NOT DEFINED SCOPES)
-    message(FATAL_ERROR "No scope specificed, set the scopes via comma seperated list e.g. -DSCOPES=et,mt,tt,em")
-endif()
-
-if (NOT DEFINED SHIFTS)
-    message(STATUS "No shifts specificed, using -DSHIFTS=all. If you want to run nominal only, use -DSHIFTS=none")
-    set(SHIFTS "all")
-endif()
-
-if (NOT DEFINED QUANTITIESMAP)
-    message(STATUS "No quantities map specified, none will be used. If you want to produce friends, you have to specify a quantities map e.g. -DQUANTITIESMAP=quantities_map.json. The input can be a json file or a root file (for debugging purposes).")
-    set(FRIENDS "false")
-    set(QUANTITIESMAP "none")
-else()
-    set(FRIENDS "true")
-endif()
+# read debug and optimized flags from command line
+option(BUILD_CROWNLIB_ONLY "Build only the CROWNLIB library" OFF)
+set(REBUILD_CROWN_LIB "false") # used for non-production mode
 
 if (NOT DEFINED DEBUG)
     message(STATUS "No Debug mode set, activate with -DDEBUG=true --> compile with debug symbols and run code generation with debug output")
@@ -38,36 +16,9 @@ if (NOT DEFINED OPTIMIZED)
     message(STATUS "No Optimization not set, building with -DOPTIMIZED=true --> slower build times but faster runtimes")
     set(OPTIMIZED "true")
 endif()
-
-if (NOT DEFINED SAMPLES)
-    message(FATAL_ERROR "Please specify the samples to be used with -DSAMPLES=samples")
-endif()
-
-if (NOT DEFINED ERAS)
-    message(FATAL_ERROR "Please specify the eras to be used with -DERAS=eras")
-endif()
-
-if (NOT DEFINED THREADS)
-    message(STATUS "No threads set, using single threaded mode with -DTHREADS=1")
-    set(THREADS "1")
-endif()
-# convert args to lower case
+# Convert args to lowercase
 string( TOLOWER "${DEBUG}" DEBUG_PARSED)
 string( TOLOWER "${OPTIMIZED}" OPTIMIZED_PARSED)
-message(STATUS "---------------------------------------------")
-message(STATUS "|> Set up analysis for scopes ${SCOPES}.")
-message(STATUS "|> Set up analysis for ${ANALYSIS}.")
-message(STATUS "|> Set up analysis for config ${CONFIG}.")
-message(STATUS "|> Set up analysis for samples ${SAMPLES}.")
-message(STATUS "|> Set up analysis for eras ${ERAS}.")
-message(STATUS "|> Set up analysis for shifts ${SHIFTS}.")
-message(STATUS "|> Set up analysis with ${THREADS} threads.")
-message(STATUS "|> Set up analysis with debug mode : ${DEBUG_PARSED}.")
-message(STATUS "|> Set up analysis with optimization mode : ${OPTIMIZED_PARSED}.")
-message(STATUS "|> generator is set to ${CMAKE_GENERATOR}")
-message(STATUS "---------------------------------------------")
-# Define the default compiler flags for different build types, if different from the cmake defaults
-# The build type should be set so that the correct compiler flags are chosen
 if(DEBUG_PARSED STREQUAL "true")
     message(STATUS "Debug mode")
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel.")
@@ -84,12 +35,78 @@ else()
         set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG" CACHE STRING "Set default compiler flags for build type Release")
     endif()
 endif()
+# Only parse additional args if not building only the CROWNLIB library
+if(NOT BUILD_CROWNLIB_ONLY)
 
+    if (NOT DEFINED ANALYSIS)
+        message(FATAL_ERROR "Please specify the Analysis to be used with -DANALYSIS=my_analysis_name")
+    endif()
+    # if analysis is set, check the folder to find any potential payload files to be used
+    file(GLOB PAYLOADS ${CMAKE_SOURCE_DIR}/analysis_configurations/${ANALYSIS}/payloads/*)
+    if (NOT PAYLOADS)
+        message(STATUS "No payload files found in ${CMAKE_SOURCE_DIR}/analysis_configurations/${ANALYSIS}/payloads/ for analysis ${ANALYSIS}")
+    else()
+        message(STATUS "Found payload files in ${CMAKE_SOURCE_DIR}/analysis_configurations/${ANALYSIS}/payloads/ for analysis ${ANALYSIS}")
+    endif()
 
-string (REPLACE "," ";" ERAS "${ERAS}")
-string (REPLACE "," ";" SAMPLES "${SAMPLES}")
-message(STATUS "Set up analysis with --analysis ${ANALYSIS} --config ${CONFIG} --scopes ${SCOPES} --shifts ${SHIFTS} --samples ${SAMPLES} --eras ${ERAS} --threads ${THREADS} --debug ${DEBUG_PARSED} --friends ${FRIENDS} --quantities_map ${QUANTITIESMAP}")
+    if (NOT DEFINED CONFIG)
+        message(FATAL_ERROR "Please specify the config to be used with -DCONFIG=my_config_name")
+    endif()
 
+    if (NOT DEFINED SCOPES)
+        message(FATAL_ERROR "No scope specificed, set the scopes via comma seperated list e.g. -DSCOPES=et,mt,tt,em")
+    endif()
+
+    if (NOT DEFINED SHIFTS)
+        message(STATUS "No shifts specificed, using -DSHIFTS=all. If you want to run nominal only, use -DSHIFTS=none")
+        set(SHIFTS "all")
+    endif()
+
+    if (NOT DEFINED QUANTITIESMAP)
+        message(STATUS "No quantities map specified, none will be used. If you want to produce friends, you have to specify quantities maps for all friend files e.g. -DQUANTITIESMAP=quantities_map_1.json,quantities_map_2.json. The input can be a comma-separated list of JSON files and/or root files (for debugging purposes).")
+        set(FRIENDS "false")
+        set(QUANTITIESMAP "none")
+    else()
+        set(FRIENDS "true")
+    endif()
+
+    if (NOT DEFINED SAMPLES)
+        message(FATAL_ERROR "Please specify the samples to be used with -DSAMPLES=samples")
+    endif()
+
+    if (NOT DEFINED ERAS)
+        message(FATAL_ERROR "Please specify the eras to be used with -DERAS=eras")
+    endif()
+
+    if (NOT DEFINED PRODUCTION)
+        message(STATUS "No production mode set --> will rebuild the CROWNLIB library if necessary")
+        set(REBUILD_CROWN_LIB "true")
+    endif()
+    if (NOT DEFINED THREADS)
+        message(STATUS "No threads set, using single threaded mode with -DTHREADS=1")
+        set(THREADS "1")
+    endif()
+    string (REPLACE "," ";" ERAS "${ERAS}")
+    string (REPLACE "," ";" SAMPLES "${SAMPLES}")
+    message(STATUS "---------------------------------------------")
+    message(STATUS "|> Set up analysis for scopes ${SCOPES}.")
+    message(STATUS "|> Set up analysis for ${ANALYSIS}.")
+    message(STATUS "|> Set up analysis for config ${CONFIG}.")
+    message(STATUS "|> Set up analysis for samples ${SAMPLES}.")
+    message(STATUS "|> Set up analysis for eras ${ERAS}.")
+    message(STATUS "|> Set up analysis for shifts ${SHIFTS}.")
+    message(STATUS "|> Set up analysis with ${THREADS} threads.")
+    message(STATUS "|> Set up analysis with debug mode : ${DEBUG_PARSED}.")
+    message(STATUS "|> Set up analysis with optimization mode : ${OPTIMIZED_PARSED}.")
+    message(STATUS "|> generator is set to ${CMAKE_GENERATOR}")
+    # Define the default compiler flags for different build types, if different from the cmake defaults
+    # The build type should be set so that the correct compiler flags are chosen
+    message(STATUS "|> Code generation arguments:  --analysis ${ANALYSIS} --config ${CONFIG} --scopes ${SCOPES} --shifts ${SHIFTS} --samples ${SAMPLES} --eras ${ERAS} --threads ${THREADS} --debug ${DEBUG_PARSED} --friends ${FRIENDS} --quantities_map ${QUANTITIESMAP}")
+    message(STATUS "---------------------------------------------")
+else() # if building only the CROWNLIB library
+    message(STATUS "Building only the CROWNLIB library")
+    message(STATUS "No additional arguments parsed")
+endif()
 
 # Set the default install directory to the build directory
 set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR} CACHE STRING "Set default install prefix to the build directory")
@@ -98,7 +115,7 @@ message(STATUS "Creating Project")
 project(CROWN CXX)
 message(STATUS "Finding Packages")
 # Find ROOT and print details
-find_package(ROOT 6.26 REQUIRED COMPONENTS ROOTVecOps ROOTDataFrame RooFit GenVector RIO Physics)
+find_package(ROOT 6.26 REQUIRED COMPONENTS ROOTVecOps ROOTDataFrame RooFit GenVector)
 # add OpenMP and MPI
 find_package(OpenMP)
 find_package(MPI)
@@ -204,11 +221,9 @@ function(find_python_package PYPINAME NAME MIN_VERSION)
             message(FATAL_ERROR "Failed to import ${PYPINAME} or get version.")
         endif()
     endif()
-# xiaohu: since 202210 GitPython provides a git with version "git" not a number
-# this fails the check in CMake, thus comment it out
-#    if(PACKAGE_VERSION VERSION_LESS MIN_VERSION)
-#        message(FATAL_ERROR "The version of Python package ${PYPINAME} is too old (found ${PACKAGE_VERSION}, require at least ${MIN_VERSION}).")
-#    endif()
+    if(PACKAGE_VERSION VERSION_LESS MIN_VERSION)
+        message(FATAL_ERROR "The version of Python package ${PYPINAME} is too old (found ${PACKAGE_VERSION}, require at least ${MIN_VERSION}).")
+    endif()
     message(STATUS "Found Python package ${PYPINAME} (require ${MIN_VERSION}, found ${PACKAGE_VERSION})")
 endfunction()
 
@@ -250,13 +265,55 @@ find_package(ZLIB)
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 message(STATUS "Correctionlib library path: ${CORRECTION_LIB_PATH}")
 
-# Generate the C++ code
 if (NOT DEFINED INSTALLDIR)
     message(STATUS "No -DINSTALLDIR specified, using default: ${CMAKE_CURRENT_BINARY_DIR}/bin")
     set(INSTALLDIR ${CMAKE_CURRENT_BINARY_DIR}/bin)
 endif()
 set(GENERATE_CPP_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-set(GENERATE_CPP_INPUT_TEMPLATE "${CMAKE_SOURCE_DIR}/code_generation/analysis_template.cxx")
+
+
+# build a shared lib from all CROWN functions
+include_directories(${CMAKE_SOURCE_DIR}/src)
+include_directories(${CMAKE_SOURCE_DIR}/include)
+file(GLOB SOURCES_1 ${CMAKE_SOURCE_DIR}/src/*.cxx)
+file(GLOB SOURCES_2
+    ${CMAKE_SOURCE_DIR}/src/utility/*.cxx
+    ${CMAKE_SOURCE_DIR}/src/RecoilCorrections/*.cxx
+    ${CMAKE_SOURCE_DIR}/src/SVFit/*.cxx)
+set(SOURCES ${SOURCES_1} ${SOURCES_2})
+
+
+if(BUILD_CROWNLIB_ONLY)
+    message(STATUS "Building only the CROWNLIB library")
+    add_library(CROWNLIB SHARED ${SOURCES})
+    target_include_directories(CROWNLIB PRIVATE ${CMAKE_SOURCE_DIR} ${ROOT_INCLUDE_DIRS})
+    ######target_link_libraries(CROWNLIB ROOT::ROOTVecOps ROOT::ROOTDataFrame ROOT::RooFit ROOT::GenVector logging correctionlib nlohmann_json::nlohmann_json)
+    target_link_libraries(CROWNLIB ROOT::ROOTVecOps ROOT::ROOTDataFrame ROOT::RooFit ROOT::GenVector ROOT::RIO ${ROOT_LIBRARIES} logging correctionlib nlohmann_json::nlohmann_json)
+    install(TARGETS CROWNLIB DESTINATION ${INSTALLDIR}/lib )
+    return()
+endif()
+# check if CROWNLIB is already installed
+find_library(CROWNLIB_FOUND CROWNLIB HINTS ${INSTALLDIR}/lib ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/lib)
+if(NOT CROWNLIB_FOUND OR REBUILD_CROWN_LIB)
+    message(STATUS "CROWNLIB not found, building it")
+    # CROWNLIB not found, build it
+    add_library(CROWNLIB SHARED ${SOURCES})
+    target_include_directories(CROWNLIB PRIVATE ${CMAKE_SOURCE_DIR} ${ROOT_INCLUDE_DIRS})
+    #####target_link_libraries(CROWNLIB ROOT::ROOTVecOps ROOT::ROOTDataFrame ROOT::RooFit ROOT::GenVector logging correctionlib nlohmann_json::nlohmann_json)
+    target_link_libraries(CROWNLIB ROOT::ROOTVecOps ROOT::ROOTDataFrame ROOT::RooFit ROOT::GenVector ROOT::RIO ${ROOT_LIBRARIES} logging correctionlib nlohmann_json::nlohmann_json)
+    install(TARGETS CROWNLIB DESTINATION ${INSTALLDIR}/lib)
+else()
+    message(STATUS "Found CROWNLIB in ${CROWNLIB_FOUND}")
+    install(FILES ${CROWNLIB_FOUND} DESTINATION ${INSTALLDIR}/lib)
+    link_directories(${INSTALLDIR}/lib ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/lib)
+endif()
+
+# Generate the C++ code
+if (FRIENDS)
+    set(GENERATE_CPP_INPUT_TEMPLATE "${CMAKE_SOURCE_DIR}/code_generation/analysis_template_friends.cxx")
+else()
+    set(GENERATE_CPP_INPUT_TEMPLATE "${CMAKE_SOURCE_DIR}/code_generation/analysis_template.cxx")
+endif()
 set(GENERATE_CPP_SUBSET_TEMPLATE "${CMAKE_SOURCE_DIR}/code_generation/subset_template.cxx")
 
 message(STATUS "")
@@ -291,18 +348,6 @@ if(NOT EXISTS ${GENERATE_CPP_OUTPUT_FILELIST})
     message(FATAL_ERROR "List of generated C++ files in ${GENERATE_CPP_OUTPUT_FILELIST} does not exist.")
 endif()
 
-# build a shared lib from all CROWN functions
-include_directories(${CMAKE_SOURCE_DIR}/src)
-include_directories(${CMAKE_SOURCE_DIR}/include)
-file(GLOB SOURCES_1 ${CMAKE_SOURCE_DIR}/src/*.cxx)
-file(GLOB SOURCES_2
-    ${CMAKE_SOURCE_DIR}/src/utility/*.cxx
-    ${CMAKE_SOURCE_DIR}/src/RecoilCorrections/*.cxx
-    ${CMAKE_SOURCE_DIR}/src/SVFit/*.cxx)
-set(SOURCES ${SOURCES_1} ${SOURCES_2})
-add_library(CROWNLIB SHARED ${SOURCES})
-target_include_directories(CROWNLIB PRIVATE ${CMAKE_SOURCE_DIR} ${ROOT_INCLUDE_DIRS})
-target_link_libraries(CROWNLIB ROOT::ROOTVecOps ROOT::ROOTDataFrame ROOT::RooFit ROOT::GenVector ROOT::RIO ${ROOT_LIBRARIES} logging correctionlib nlohmann_json::nlohmann_json)
 
 # Iterate over files from output filelist and add build and install targets
 FILE(READ ${GENERATE_CPP_OUTPUT_FILELIST} FILELIST)
@@ -310,7 +355,9 @@ STRING(REGEX REPLACE "\n" ";" FILELIST ${FILELIST})
 set(TARGET_NAMES "")
 # copy all correction files into the install location
 install(DIRECTORY data/ DESTINATION ${INSTALLDIR}/data)
-install(TARGETS CROWNLIB DESTINATION ${INSTALLDIR}/lib)
+if (PAYLOADS)
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/analysis_configurations/${ANALYSIS}/payloads DESTINATION ${INSTALLDIR})
+endif()
 
 # also copy inish script needed for job tarball
 install(FILES init.sh DESTINATION ${INSTALLDIR})
@@ -335,8 +382,8 @@ foreach(FILENAME ${FILELIST})
     add_executable(${TARGET_NAME} ${FULL_PATH} ${GENERATED_CXX_FILES})
     # Adds a pre-build event to the Target copying the correctionlib.so file into the /lib folder in the install directory
     target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_SOURCE_DIR} ${ROOT_INCLUDE_DIRS} $ORIGIN/lib/ lib/)
+    ######target_link_libraries(${TARGET_NAME} ROOT::ROOTVecOps ROOT::ROOTDataFrame ROOT::RooFit ROOT::GenVector logging correctionlib nlohmann_json::nlohmann_json CROWNLIB)
     target_link_libraries(${TARGET_NAME} ROOT::ROOTVecOps ROOT::ROOTDataFrame ROOT::RooFit ROOT::GenVector ROOT::RIO ${ROOT_LIBRARIES} logging correctionlib nlohmann_json::nlohmann_json CROWNLIB)
-
     add_custom_command(TARGET ${TARGET_NAME} PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${CORRECTION_LIB_PATH}"
