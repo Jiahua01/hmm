@@ -345,11 +345,11 @@ namespace jet {
 /// \param[in] idxID bitvalue of the WP the has to be passed
 ///
 /// \return a dataframe containing the new mask
-ROOT::RDF::RNode CutID(ROOT::RDF::RNode df, const std::string &maskname,
-                       const std::string &nameID, const int &idxID) {
-    auto df1 = df.Define(maskname, basefunctions::FilterJetID(idxID), {nameID});
-    return df1;
-}
+// ROOT::RDF::RNode CutID(ROOT::RDF::RNode df, const std::string &maskname,
+//                        const std::string &nameID, const int &idxID) {
+//     auto df1 = df.Define(maskname, basefunctions::FilterJetID(idxID), {nameID});
+//     return df1;
+// }
 
 ROOT::RDF::RNode CutID(ROOT::RDF::RNode df, const std::string &maskname,
                        const std::string &nameID, const UChar_t &idxID) {
@@ -411,6 +411,77 @@ ROOT::RDF::RNode JetIdTightLepVeto_Cut(ROOT::RDF::RNode df,
             }
 
             return PassJetId_FailTightLepVeto; // RVec<bool>
+        },
+        // Columns that the lambda above depends on
+        {jet_eta, jet_jetId, jet_neHEF, jet_neEmEF, jet_muEF, jet_chEmEF}
+    );
+
+    // Return the updated RNode
+    return df1;
+}
+ROOT::RDF::RNode JetIdTightLepVeto_Cut_v12(ROOT::RDF::RNode df,
+                                       const std::string &output_col,
+                                       const std::string &jet_eta,
+                                       const std::string &jet_jetId,
+                                       const std::string &jet_neHEF,
+                                       const std::string &jet_neEmEF,
+                                       const std::string &jet_muEF,
+                                       const std::string &jet_chEmEF)
+{
+    // Define a new column in the dataset, "output_col", using the provided column names
+    auto df1 = df.Define(
+        output_col,
+        [](const ROOT::RVec<float> &Jet_eta,
+           const ROOT::RVec<UChar_t>   &Jet_jetId,
+           const ROOT::RVec<float> &Jet_neHEF,
+           const ROOT::RVec<float> &Jet_neEmEF,
+           const ROOT::RVec<float> &Jet_muEF,
+           const ROOT::RVec<float> &Jet_chEmEF)
+        {
+            // The output will be a boolean vector, one entry per jet.
+            //ROOT::RVec<int> PassJetId_FailTightLepVeto(Jet_eta.size(), 0);
+            ROOT::RVec<UChar_t> jet_id(Jet_eta.size(), static_cast<UChar_t>(0));
+
+            for (size_t i = 0; i < Jet_eta.size(); ++i) {
+                // 1) Compute Jet_passJetIdTight
+                bool jet_passTight = false;
+                float absEta = std::abs(Jet_eta[i]);
+
+                // Check 2nd bit of jetId: (1 << 1) means bit index 1 (a value of 2)
+                if (absEta <= 2.7) {
+                    jet_passTight = (Jet_jetId[i] & (1 << 1));
+                }
+                else if (absEta <= 3.0) {
+                    jet_passTight = ((Jet_jetId[i] & (1 << 1)) && (Jet_neHEF[i] < 0.99));
+                }
+                else {
+                    // absEta > 3.0
+                    jet_passTight = ((Jet_jetId[i] & (1 << 1)) && (Jet_neEmEF[i] < 0.4));
+                }
+
+                // 2) Compute Jet_passJetIdTightLepVeto
+                bool jet_passTightLepVeto = false;
+                if (absEta <= 2.7) {
+                    jet_passTightLepVeto = jet_passTight &&
+                                           (Jet_muEF[i]  < 0.8) &&
+                                           (Jet_chEmEF[i] < 0.8);
+                } else {
+                    jet_passTightLepVeto = jet_passTight;
+                }
+
+                //PassJetId_FailTightLepVeto[i] = (jet_passTight && (!jet_passTightLepVeto));
+                //PassJetId_FailTightLepVeto[i] = Jet_passJetIdTight;
+                // --- Assign jet_id_v15 ---
+                if (jet_passTight && jet_passTightLepVeto)
+                    jet_id[i] = static_cast<UChar_t>(6);
+                else if (jet_passTight)
+                    jet_id[i] = static_cast<UChar_t>(2);
+                else
+                    jet_id[i] = static_cast<UChar_t>(0);
+            }
+
+            //return PassJetId_FailTightLepVeto; // RVec<bool>
+            return jet_id;
         },
         // Columns that the lambda above depends on
         {jet_eta, jet_jetId, jet_neHEF, jet_neEmEF, jet_muEF, jet_chEmEF}

@@ -5,6 +5,21 @@ from code_generation.producer import Producer, ProducerGroup, Filter
 ####################
 # Set of producers used for selection possible good jets
 ####################
+#calculate the jet id again(for nanoaod v12 and v15 samples)
+JetId_v12 = Producer(
+    name="JetId_v12",
+    call="physicsobject::jet::JetIdTightLepVeto_Cut_v12({df}, {output}, {input})",
+    input=[
+        nanoAOD.Jet_eta,
+        nanoAOD.Jet_ID,
+        nanoAOD.Jet_neHEF,
+        nanoAOD.Jet_neEmEF,
+        nanoAOD.Jet_muEF,
+        nanoAOD.Jet_chEmEF,
+    ],
+    output=[q.jet_id_v12],
+    scopes=["global"],
+)
 
 ### energy corrections
 # vh these pT corrections are copied from Htautau
@@ -37,7 +52,7 @@ JetPtCorrection_202223 = Producer(
         nanoAOD.Jet_phi,
         nanoAOD.Jet_area,
         nanoAOD.Jet_rawFactor,
-        nanoAOD.Jet_ID,
+        q.jet_id_v12,
         nanoAOD.Jet_chEmEF,
         nanoAOD.Jet_neEmEF,
         nanoAOD.GenJet_pt,
@@ -146,7 +161,7 @@ JetPtCorrection_data_2022 = Producer(
         nanoAOD.Jet_phi,
         nanoAOD.Jet_area,
         nanoAOD.Jet_rawFactor,
-        nanoAOD.Jet_ID,
+        q.jet_id_v12,
         nanoAOD.rho,
         nanoAOD.Jet_neEmEF,
         nanoAOD.Jet_chEmEF
@@ -173,7 +188,7 @@ JetPtCorrection_data_2023BPix = Producer(
         nanoAOD.Jet_phi,
         nanoAOD.Jet_area,
         nanoAOD.Jet_rawFactor,
-        nanoAOD.Jet_ID,
+        q.jet_id_v12,
         nanoAOD.rho,
         nanoAOD.Jet_neEmEF,
         nanoAOD.Jet_chEmEF
@@ -246,7 +261,7 @@ BJetEtaCut = Producer(
 JetIDCut = Producer(
     name="JetIDCut",
     call="physicsobject::jet::CutID({df}, {output}, {input}, {jet_id})",
-    input=[nanoAOD.Jet_ID],
+    input=[q.jet_id_v12],
     output=[q.jet_id_mask],
     scopes=["global"],
 )

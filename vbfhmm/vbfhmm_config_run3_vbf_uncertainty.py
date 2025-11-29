@@ -344,6 +344,14 @@ def build_config(
                     "2016postVFP": "data/RoccoR_files/RoccoR2016bUL.txt",
                     "2017": "data/RoccoR_files/RoccoR2017UL.txt",
                     "2018": "data/RoccoR_files/RoccoR2018UL.txt",
+                    "2022": "data/RoccoR_files/RoccoR2022.txt",
+                    "2022EE": "data/RoccoR_files/RoccoR2022EE.txt",
+                    "2023": "data/RoccoR_files/RoccoR2023.txt",
+                    "2023BPix": "data/RoccoR_files/RoccoR2023BPix.txt",
+                },
+            ),
+            "muon_KIT_files": EraModifier(
+                {
                     "2022": "data/RoccoR_files/2022_Summer22.json",
                     "2022EE": "data/RoccoR_files/2022_Summer22EE.json",
                     "2023": "data/RoccoR_files/2023_Summer23.json",
@@ -807,7 +815,7 @@ def build_config(
     configuration.add_config_parameters(
         ["gghmm","vbfhmm"],
         {
-            "vetoVH_max_nelectrons" : 0,
+            # "vetoVH_max_nelectrons" : 0,
         }
     )
 
@@ -817,17 +825,17 @@ def build_config(
         {
             "vbf_nmuons" : 2,
             "flag_DiMuonFromHiggs" : 1,
-            "flag_LeptonChargeSumVeto" : 2, # sum lepton charge = 0
+            # "flag_LeptonChargeSumVeto" : 2, # sum lepton charge = 0
             #"lead_muon_pt" : 26,
             # "dimuon_pair" : 1, # dimuon_pair in [110,150] >=1
-            "vbf_njets" : 2,
+            # "vbf_njets" : 2,
             # "lead_jet_pt" : 35, #lead jet pt > 35
             # "sublead_jet_pt" : 25, #sublead jet pt > 25
             # "dijet_mass" : 400, #dijet mass > 400
-            "dijet_eta" : 2.5, #jet-jet delta eta > 2.5
-            "min_genjet_pt": 25,
-            "max_genjet_eta": 4.7, # vh
-            "Hmass_min": 100,
+            # "dijet_eta" : 2.5, #jet-jet delta eta > 2.5
+            # "min_genjet_pt": 25,
+            # "max_genjet_eta": 4.7, # vh
+            # "Hmass_min": 100,
         }
     )
 
@@ -862,6 +870,7 @@ def build_config(
             muons.BaseMuons, # vh
             # vbfhmm muon Rochester corr, FSR recovery added 
             electrons.BaseElectrons,
+            jets.JetId_v12, # calculate jet id privately for jet selection
             jets.JetEnergyCorrection_202223, # include pt corr and mass corr and 2022 modify the JR sf adding pt
             #jets.JetEnergyCorrection_2022_GenMatch, # include pt corr and mass corr and 2022 modify the JR sf adding pt
             #jets.GoodJets, # vh overlap removal with ?base? muons done [need validation]
@@ -939,8 +948,8 @@ def build_config(
             event.Flag_DiMuonFromHiggs,
             event.HiggsToDiMuonPair_p4, # select the dimuon pairs in [70,150] and order by pt
             ###
-            event.DiMuonMassFromZVeto,# has dimuon from Z return mask equal to 0, otherwise return 1
-            event.VetoVHElectron,
+            # event.DiMuonMassFromZVeto,# has dimuon from Z return mask equal to 0, otherwise return 1
+            # event.VetoVHElectron,
             # jets.FilterNJets,
             # event.LeadJetPtCut,
             # event.SubleadJetPtCut,
@@ -955,7 +964,7 @@ def build_config(
      
             # flag cut
             event.FilterFlagDiMuFromH,
-            event.FilterFlagLepChargeSum,
+            # event.FilterFlagLepChargeSum,
             ###
             muons.Mu1_H,
             muons.Mu2_H,
@@ -983,7 +992,7 @@ def build_config(
             p4.H_phi,
             p4.H_mass,
 
-            muons.FilterHmass,##cut on H_mass, make H_mass [100,150], control by Hmass_min
+            # muons.FilterHmass,##cut on H_mass, make H_mass [100,150], control by Hmass_min
 
             p4.genmet_pt,
             p4.genmet_phi,
@@ -1026,6 +1035,18 @@ def build_config(
             muons.mu2_charge,
             muons.Mu1_nTrackerLayers,
             muons.Mu2_nTrackerLayers,
+
+            genparticles.dimuon_gen_collection,
+            genparticles.genMu1_H,
+            genparticles.genMu2_H,
+            p4.genmu1_fromH_pt,
+            p4.genmu1_fromH_eta,
+            p4.genmu1_fromH_phi,
+            p4.genmu1_fromH_mass,
+            p4.genmu2_fromH_pt,
+            p4.genmu2_fromH_eta,
+            p4.genmu2_fromH_phi,
+            p4.genmu2_fromH_mass,
 
         ],
     )
@@ -1128,6 +1149,17 @@ def build_config(
             q.Flag_DiMuonFromHiggs,
             triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel_2022.output_group,
 
+            #gen muons
+            q.genmu1_fromH_eta,
+            q.genmu1_fromH_phi,
+            q.genmu1_fromH_pt,
+            q.genmu1_fromH_mass,
+            q.genmu2_fromH_eta,
+            q.genmu2_fromH_phi,
+            q.genmu2_fromH_pt,
+            q.genmu2_fromH_mass,
+            q.dimuon_gen_collection,
+
             #
             q.id_wgt_mu_1,
             q.iso_wgt_mu_1,
@@ -1155,6 +1187,10 @@ def build_config(
             q.BSC_pt_rc_2,
             q.BSC_ptErr_rc_1,
             q.BSC_ptErr_rc_2,
+            q.pt_roc_1,
+            q.pt_roc_2,
+            q.BSC_pt_roc_1,
+            q.BSC_pt_roc_2,
             # fsr
             q.fsrPhoton_pt_1,
             q.fsrPhoton_eta_1,
@@ -1177,13 +1213,57 @@ def build_config(
         ],
     )
     ##
+    # all data vbfhmm
+    configuration.add_modification_rule(
+        ["vbfhmm"],
+        RemoveProducer(
+            producers=[
+                genparticles.dimuon_gen_collection,
+                genparticles.genMu1_H,
+                genparticles.genMu2_H,
+                p4.genmu1_fromH_pt,
+                p4.genmu1_fromH_eta,
+                p4.genmu1_fromH_phi,
+                p4.genmu1_fromH_mass,
+                p4.genmu2_fromH_pt,
+                p4.genmu2_fromH_eta,
+                p4.genmu2_fromH_phi,
+                p4.genmu2_fromH_mass,
+            ],
+            samples=["data"],
+        ),
+    )
+    ###for rochester
+    if sample != "data":
+        configuration.add_modification_rule(
+            "vbfhmm",
+            AppendProducer(
+                producers=[event.MuonRoccoRRndm,
+                            event.ApplyRoccoRMC_2022_BSC,
+                            event.ApplyRoccoRMC_2022_reco],
+                samples=sample,
+                update_output=False,
+            ),
+        )
+    if sample == "data":
+        configuration.add_modification_rule(
+            "vbfhmm",
+            AppendProducer(
+                producers=[event.ApplyRoccoRData_BSC,
+                            event.ApplyRoccoRData_reco],
+                samples=sample,
+                update_output=False,
+            ),
+        )
+        ####for KIT muon scale and resolution
     if sample != "data":
         configuration.add_modification_rule(
             "vbfhmm",
             AppendProducer(
                 producers=[event.applyMuonScaReMC_Err,
                 event.applyMuonScaReMC,
-                event.applyMuonScaReMC_reco,],
+                event.applyMuonScaReMC_reco,
+                ],
                 samples=sample,
                 update_output=False,
             ),
@@ -1241,17 +1321,27 @@ def build_config(
     )
     # changes needed for data
     # global scope
-    configuration.add_modification_rule(
-        "global",
-        AppendProducer(
-            #producers=[jets.RenameJetsData, fatjets.RenameFatJetsData, event.JSONFilter,],
-            #producers=[jets.RenameJetsData,event.JSONFilter,],
-            #jetvetomap
-            producers=[jets.JetEnergyCorrection_data_2022, event.JSONFilter,],
-            samples=["data"],
-            update_output=False,
-        ),
-    )
+    if (era == "2022" or era == "2022EE" or era == "2023") and sample == "data":
+        configuration.add_modification_rule(
+            "global",
+            AppendProducer(
+                #jetvetomap
+                producers=[jets.JetEnergyCorrection_data_2022, event.JSONFilter,],
+                samples=["data"],
+                update_output=False,
+            ),
+        )
+    
+    if (era == "2023BPix") and sample == "data":
+        configuration.add_modification_rule(
+            "global",
+            AppendProducer(
+                #jetvetomap
+                producers=[jets.JetEnergyCorrection_data_2023BPix, event.JSONFilter,],
+                samples=["data"],
+                update_output=False,
+            ),
+        )
     ##ahhh
     configuration.add_modification_rule(
         scopes,
@@ -1301,7 +1391,7 @@ def build_config(
         RemoveProducer(
             producers=[
                 scalefactors.MuonIDIso_SF_vbfhmm_noYear,
-                scalefactors.btagging_SF,
+                # scalefactors.btagging_SF,
 
                 syst.CalPDFUncertainty_up,
                 syst.CalPDFUncertainty_down,
@@ -1424,28 +1514,29 @@ def build_config(
     # Append year-specific versions
     JEC_sources += [f"{src}_{era}" for src in JEC_YEAR_DEPENDENT]
 
-    for source in JEC_sources:
-        jes_source_str = '{"Regrouped_' + source + '"}'
-        
-        for direction, shift_value in [("Up", 1), ("Down", -1)]:
-            name = f"jes{source}{direction}"
+    if sample != "data":
+        for source in JEC_sources:
+            jes_source_str = '{"Regrouped_' + source + '"}'
+            
+            for direction, shift_value in [("Up", 1), ("Down", -1)]:
+                name = f"jes{source}{direction}"
 
-            configuration.add_shift(
-                SystematicShift(
-                    name=name,
-                    shift_config={
-                        "global": {
-                            "jet_jes_shift": shift_value,
-                            "jet_jes_sources": jes_source_str,
+                configuration.add_shift(
+                    SystematicShift(
+                        name=name,
+                        shift_config={
+                            "global": {
+                                "jet_jes_shift": shift_value,
+                                "jet_jes_sources": jes_source_str,
+                            },
                         },
-                    },
-                    producers={
-                        "global": {
-                            jets.JetEnergyCorrection_202223,
+                        producers={
+                            "global": {
+                                jets.JetEnergyCorrection_202223,
+                            },
                         },
-                    },
+                    )
                 )
-            )
     #########################
     # Finalize and validate the configuration
     #########################

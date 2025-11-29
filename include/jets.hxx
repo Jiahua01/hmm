@@ -46,14 +46,18 @@ ROOT::RDF::RNode OrderJetsByPt(ROOT::RDF::RNode df,
 namespace physicsobject {
 namespace jet {
 
-ROOT::RDF::RNode CutID(ROOT::RDF::RNode df, const std::string &maskname,
-                       const std::string &nameID, const int &idxID);
+// ROOT::RDF::RNode CutID(ROOT::RDF::RNode df, const std::string &maskname,
+//                        const std::string &nameID, const int &idxID);
 ROOT::RDF::RNode CutID(ROOT::RDF::RNode df, const std::string &maskname,
                        const std::string &nameID, const UChar_t &idxID); 
 ROOT::RDF::RNode JetIdTightLepVeto_Cut(ROOT::RDF::RNode df, const std::string &output_col,
                                        const std::string &jet_eta, const std::string &jet_jetId,
                                        const std::string &jet_neHEF, const std::string &jet_neEmEF,
                                        const std::string &jet_muEF, const std::string &jet_chEmEF);
+ROOT::RDF::RNode JetIdTightLepVeto_Cut_v12(ROOT::RDF::RNode df, const std::string &output_col,
+                                       const std::string &jet_eta, const std::string &jet_jetId,
+                                       const std::string &jet_neHEF, const std::string &jet_neEmEF,
+                                       const std::string &jet_muEF, const std::string &jet_chEmEF);                                       
 ROOT::RDF::RNode JetIdTightLepVeto_Cut_v15(ROOT::RDF::RNode df, const std::string &output_col,
                                           const std::string &jet_eta,const std::string &jet_neHEF,
                                           const std::string &jet_neEmEF, const std::string &jet_chMultiplicity,

@@ -18,6 +18,7 @@ veto_electrons_mask = Quantity("veto_electrons_mask")
 veto_electrons_mask_2 = Quantity("veto_electrons_mask_2")
 electron_veto_flag = Quantity("extraelec_veto")
 jet_id_mask = Quantity("jet_id_mask")
+jet_id_v12 = Quantity("jet_id_v12")
 jet_puid_mask = Quantity("jet_puid_mask")
 jet_horn_veto_mask = Quantity("jet_horn_veto_mask")
 jet_overlap_veto_mask = Quantity("jet_overlap_veto_mask")
@@ -92,10 +93,12 @@ mu1_charge = Quantity("mu1_charge")
 mu2_charge = Quantity("mu2_charge")
 mu1_nTrackerLayers = Quantity("mu1_nTrackerLayers")
 mu2_nTrackerLayers = Quantity("mu2_nTrackerLayers")
-BSC_pt_rc_1 = Quantity("BSC_pt_rc_1")
+BSC_pt_rc_1 = Quantity("BSC_pt_rc_1") #kit corrected pt
 BSC_pt_rc_2 = Quantity("BSC_pt_rc_2")
 BSC_ptErr_rc_1 = Quantity("BSC_ptErr_rc_1")
 BSC_ptErr_rc_2 = Quantity("BSC_ptErr_rc_2")
+BSC_pt_roc_1 = Quantity("BSC_pt_roc_1") #Rochester corrected pt
+BSC_pt_roc_2 = Quantity("BSC_pt_roc_2")
 
 # Combined event quantities
 m_vis = Quantity("m_vis")
@@ -338,7 +341,8 @@ Flag_MetCut = Quantity("Flag_MetCut")
 
 mu1_fromH_pt = Quantity("mu1_fromH_pt")
 rndms = Quantity("rndms")
-pt_rc_1 = Quantity("pt_rc_1")
+pt_rc_1 = Quantity("pt_rc_1")#kit reco
+pt_roc_1 = Quantity("pt_roc_1")##rochester reco
 mu1_fromH_ptErr = Quantity("mu1_fromH_ptErr")
 mu1_fromH_eta = Quantity("mu1_fromH_eta")
 mu1_fromH_phi = Quantity("mu1_fromH_phi")
@@ -346,6 +350,7 @@ mu1_fromH_mass = Quantity("mu1_fromH_mass")
 
 mu2_fromH_pt = Quantity("mu2_fromH_pt")
 pt_rc_2 = Quantity("pt_rc_2")
+pt_roc_2 = Quantity("pt_roc_2")
 mu2_fromH_ptErr = Quantity("mu2_fromH_ptErr")
 mu2_fromH_eta = Quantity("mu2_fromH_eta")
 mu2_fromH_phi = Quantity("mu2_fromH_phi")
