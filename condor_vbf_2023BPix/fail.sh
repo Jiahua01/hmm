@@ -386,3 +386,7 @@ Jobs/ZZZ_amcatnlo_23BPix_13204044_6.out ->
 Jobs/ZZZ_amcatnlo_23BPix_13204044_7.out -> 
 Jobs/ZZZ_amcatnlo_23BPix_13204044_8.out -> 
 Jobs/ZZZ_amcatnlo_23BPix_13204044_9.out -> 
+Jobs/DYto2Mu-2Jets_MLL-105To160_amcatnloFXFX_23BPix_13260219_42.out -> 
+Jobs/DYto2Mu-2Jets_MLL-105To160_amcatnloFXFX_23BPix_13260219_46.out -> 
+Jobs/DYto2Mu-2Jets_MLL-105To160_amcatnloFXFX_23BPix_13260219_59.out -> 
+Jobs/DYto2Mu-2Jets_MLL-105To160_amcatnloFXFX_23BPix_13260219_73.out -> 

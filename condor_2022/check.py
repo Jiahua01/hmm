@@ -59,9 +59,9 @@ def filter_and_format_dy_file(folder_path, dy_file, output_file):
 
 # 使用示例
 
-dy_file = '/afs/cern.ch/user/j/jiahua/CROWN_run3/condor_2022/Sample_list/ZZto4L_powheg_22_ext1-v2.txt'  # DY.txt 文件路径
-folder_path = '/afs/cern.ch/user/j/jiahua/work/MC_2022_inc/ZZto4L_powheg_22_ext1-v2'  # 包含 .root 文件的文件夹路径
-log_path = '/afs/cern.ch/user/j/jiahua/work/MC_2022_inc/log/log_ZZto4L_powheg_22_ext1-v2'  # 输出未找到条目的文件
-output_file = 'resub/ZZto4L_powheg_22_ext1-v2.sub'
+dy_file = '/afs/cern.ch/user/j/jiahua/CROWN_run3/condor_2022/Sample_list/ZZZ_amcatnlo_22.txt'  # DY.txt 文件路径
+folder_path = '/afs/cern.ch/user/j/jiahua/work/MC_2022_inc/1130/ZZZ_amcatnlo_2022'  # 包含 .root 文件的文件夹路径
+log_path = '/afs/cern.ch/user/j/jiahua/work/MC_2022_inc/log/log_ZZZ_amcatnlo_2022'  # 输出未找到条目的文件
+output_file = 'resub/ZZZ_amcatnlo_2022.sub'
 
 filter_and_format_dy_file(folder_path, dy_file, output_file)

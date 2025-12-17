@@ -15,4 +15,4 @@ voms-proxy-info -all
 voms-proxy-info -all -file $1
 out_name=$(echo "$3" | awk -F'/' '{print $NF}')
 echo ${2}/${out_name}
-./vbfhmm_config_run3_vbf_test_top_2022EE  ${2}/${out_name} $3
+./vbfhmm_config_run3_vbf_uncertainty_top_2022EE  ${2}/${out_name} $3

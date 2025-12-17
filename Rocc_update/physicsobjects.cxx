@@ -2108,9 +2108,7 @@ ROOT::RDF::RNode applyMuonScaReMC(ROOT::RDF::RNode df,
                                   const std::string &ptCol,
                                   const std::string &etaCol,
                                   const std::string &phiCol,
-                                  const std::string &nLCol,
-                                  const std::string &event,
-                                  const std::string &lumi
+                                  const std::string &nLCol
                                 )
 {
     auto muonscare = std::make_shared<MuonScaRe>(jsonfile);
@@ -2120,10 +2118,7 @@ ROOT::RDF::RNode applyMuonScaReMC(ROOT::RDF::RNode df,
                                         const ROOT::RVec<float> &ptVec,
                                         const ROOT::RVec<float> &etaVec,
                                         const ROOT::RVec<float> &phiVec,
-                                        const ROOT::RVec<int> &nLVec,
-                                        const ULong64_t &event_value,
-                                        const UInt_t &lumi_value
-                                        ) {
+                                        const ROOT::RVec<int> &nLVec) {
         double pt_corr = -999.;
         const int idx = obj_idx.at(position);
 
@@ -2134,12 +2129,12 @@ ROOT::RDF::RNode applyMuonScaReMC(ROOT::RDF::RNode df,
         float nL = nLVec.at(idx);
 
         double pt_scaled = muonscare->pt_scale(false, pt, eta, phi, charge);
-        return muonscare->pt_resol(pt_scaled, eta, phi, nL, event_value, lumi_value); // SpreadMC 相当于 resol with genPt
+        return muonscare->pt_resol(pt_scaled, eta, nL); // SpreadMC 相当于 resol with genPt
     };
 
     return df.Define(outputname, lambda,
                      {objCollection, chargeCol, ptCol, etaCol, phiCol,
-                     nLCol, event, lumi});
+                     nLCol});
 }
 //Using the muon scale factor from KIT json file. Seperate MC and data 
 ROOT::RDF::RNode applyMuonScaReData(ROOT::RDF::RNode df,
@@ -2168,7 +2163,7 @@ ROOT::RDF::RNode applyMuonScaReData(ROOT::RDF::RNode df,
         double phi = phiVec.at(idx);
         int charge = chargeVec.at(idx);
 
-        return muonscare->pt_scale(true, pt, eta, phi, charge);
+        return muonscare->pt_scale(false, pt, eta, phi, charge);
 
     };
 
@@ -2214,48 +2209,48 @@ ROOT::RDF::RNode applyMuonScaReData_Err(
     return df1;
 }
 
-// ROOT::RDF::RNode applyMuonScaReMC_Err(
-//                                   ROOT::RDF::RNode df,
-//                                   const std::string &outputname,
-//                                   const std::string &jsonfile,
-//                                   const int &position,
-//                                   const std::string &objCollection,
-//                                   const std::string &ptCol,
-//                                   const std::string &etaCol,
-//                                   const std::string &phiCol,
-//                                   const std::string &chargeCol,
-//                                   const std::string &nLCol
-// )
-// {
-//     auto muonscare = std::make_shared<MuonScaRe>(jsonfile);
+ROOT::RDF::RNode applyMuonScaReMC_Err(
+                                  ROOT::RDF::RNode df,
+                                  const std::string &outputname,
+                                  const std::string &jsonfile,
+                                  const int &position,
+                                  const std::string &objCollection,
+                                  const std::string &ptCol,
+                                  const std::string &etaCol,
+                                  const std::string &phiCol,
+                                  const std::string &chargeCol,
+                                  const std::string &nLCol
+)
+{
+    auto muonscare = std::make_shared<MuonScaRe>(jsonfile);
 
-//     auto df1 = df.Define(outputname,
-//         [muonscare, position](const ROOT::RVec<int> &obj_idx,
-//                               const ROOT::RVec<float> &ptVec,
-//                               const ROOT::RVec<float> &etaVec,
-//                               const ROOT::RVec<float> &phiVec,
-//                               const ROOT::RVec<int> &chargeVec,
-//                               const ROOT::RVec<int> &nLVec
-//                             ) {
+    auto df1 = df.Define(outputname,
+        [muonscare, position](const ROOT::RVec<int> &obj_idx,
+                              const ROOT::RVec<float> &ptVec,
+                              const ROOT::RVec<float> &etaVec,
+                              const ROOT::RVec<float> &phiVec,
+                              const ROOT::RVec<int> &chargeVec,
+                              const ROOT::RVec<int> &nLVec
+                            ) {
 
-//             const int idx = obj_idx.at(position);
+            const int idx = obj_idx.at(position);
 
-//             float pt    = ptVec.at(idx);
-//             float eta    = etaVec.at(idx);
-//             float phi    = phiVec.at(idx);
-//             int charge   = chargeVec.at(idx);
-//             float nL = nLVec.at(idx);
+            float pt    = ptVec.at(idx);
+            float eta    = etaVec.at(idx);
+            float phi    = phiVec.at(idx);
+            int charge   = chargeVec.at(idx);
+            float nL = nLVec.at(idx);
 
-//             double scaled = muonscare->pt_scale(false, pt, eta, phi, charge);
-//             double smeared = muonscare->pt_resol(scaled, eta, nL);
-//             double pt_up = muonscare->pt_resol_var(scaled, smeared, eta, std::string("up"));
+            double scaled = muonscare->pt_scale(false, pt, eta, phi, charge);
+            double smeared = muonscare->pt_resol(scaled, eta, nL);
+            double pt_up = muonscare->pt_resol_var(scaled, smeared, eta, std::string("up"));
 
-//             return std::abs(pt_up - smeared);
-//         },
-//         {objCollection, ptCol, etaCol, phiCol, chargeCol, nLCol});
+            return std::abs(pt_up - smeared);
+        },
+        {objCollection, ptCol, etaCol, phiCol, chargeCol, nLCol});
 
-//     return df1;
-// }
+    return df1;
+}
 
 } // end namespace muon
 /// Tau specific functions

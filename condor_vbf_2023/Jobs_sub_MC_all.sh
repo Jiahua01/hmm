@@ -3,12 +3,12 @@ lines=()
 PDs=()
 addition=
 addition=
-conf_name=vbfhmm_config_run3_vbf_uncertainty_top_2022EE
-build_name=build_vbf
-output_Path=/eos/user/j/jiahua/MC_2023_inc/MC_2023_vbf/
-#file_path=/afs/cern.ch/user/j/jiahua/CROWN_run3/condor_vbf_2023/Sample_list/mc_2023_run3.txt
+conf_name=vbfhmm_config_run3_vbf_uncertainty_top_2023
+build_name=build_2022
+output_Path=~/rootfiles/MC_2023_inc/
+file_path=/afs/cern.ch/user/j/jiahua/CROWN_run3/condor_vbf_2023/Sample_list/mc_2023_run3.txt
 # file_path=/afs/cern.ch/user/j/jiahua/CROWN_run3/condor_vbf_2023/Sample_list/data_2023.txt
-file_path=/afs/cern.ch/user/j/jiahua/CROWN_run3/condor_vbf_2023/Sample_list/triboson.txt
+# file_path=/afs/cern.ch/user/j/jiahua/CROWN_run3/condor_vbf_2023/Sample_list/triboson.txt
 SamListPath=/afs/cern.ch/user/j/jiahua/CROWN_run3/condor_vbf_2023/Sample_list
 # Check if the file exists
 if [ -e "$file_path" ]; then

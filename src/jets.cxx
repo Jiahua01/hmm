@@ -1948,6 +1948,8 @@ JetPtCorrection_202223(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                 const std::string &jet_chEmEF, const std::string &jet_neEmEF,
                 const std::string &gen_jet_pt, const std::string &gen_jet_eta,
                 const std::string &gen_jet_phi, const std::string &rho,
+                const std::string &event, const std::string &run,
+                const std::string &lumi,
                 bool reapplyJES,
                 const std::vector<std::string> &jes_shift_sources,
                 const int &jes_shift, const std::string &jer_shift,
@@ -2056,10 +2058,13 @@ JetPtCorrection_202223(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
                                              &gen_eta_values,
                                          const ROOT::RVec<float>
                                              &gen_phi_values,
-                                         const float &rho_value
+                                         const float &rho_value,
+                                         const ULong64_t &event_value,
+                                         const UInt_t &run_value,
+                                         const UInt_t &lumi_value
                                          ) {
         // random value generator for jet smearing
-        TRandom3 randm = TRandom3(12345);////可以用ctx.refs.randomGen.SetSeed(jer.event + jer.run + jer.lumi);
+        TRandom3 randm = TRandom3(event_value+run_value+lumi_value);////可以用ctx.refs.randomGen.SetSeed(jer.event + jer.run + jer.lumi);
         float pt_veto = -999.0;
         ROOT::RVec<float> pt_values_corrected;
         // // apply jet veto map. If any jet lies within jet veto map, reject the events. 
@@ -2244,7 +2249,7 @@ JetPtCorrection_202223(ROOT::RDF::RNode df, const std::string &corrected_jet_pt,
     };
     auto df1 = df.Define(corrected_jet_pt, JetEnergyCorrectionLambda,
                          {jet_pt, jet_eta, jet_phi, jet_area, jet_rawFactor,
-                          jet_ID, jet_chEmEF, jet_neEmEF, gen_jet_pt, gen_jet_eta, gen_jet_phi, rho});
+                          jet_ID, jet_chEmEF, jet_neEmEF, gen_jet_pt, gen_jet_eta, gen_jet_phi, rho, event, run, lumi});
     return df1;
 }
 

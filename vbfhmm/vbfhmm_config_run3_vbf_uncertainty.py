@@ -887,7 +887,7 @@ def build_config(
             met.MetBasics, # build met vector for calculation
             met.BuildGenMetVector,
             jets.JetCollection,
-            jets.GoodJetFilter,
+            # jets.GoodJetFilter,
             jets.Calc_MHT,
             #jets.FilterNJets,
             #jets.LVJet1,
@@ -924,10 +924,10 @@ def build_config(
             # p4.jet4_mass,
             jets.DiJetMass,
             jets.DiJetEta,
-            # jets.Jet1_rawpT,
-            # jets.Jet1_rawMass,
-            # jets.Jet2_rawpT,
-            # jets.Jet2_rawMass,
+            jets.Jet1_rawpT,
+            jets.Jet1_rawMass,
+            jets.Jet2_rawpT,
+            jets.Jet2_rawMass,
             # jets.Jet3_rawpT,
             # jets.Jet3_rawMass,
             # jets.Jet4_rawpT,
@@ -1094,19 +1094,20 @@ def build_config(
     configuration.add_outputs(
         ["global"],
         [
+            q.jet_id_v12,
             q.jet1_pt,
             q.jet1_eta,
             q.jet1_phi,
             q.jet1_mass,
-            # q.jet1_rawpT,
-            # q.jet1_rawMass,
+            q.jet1_rawpT,
+            q.jet1_rawMass,
 
             q.jet2_pt,
             q.jet2_eta,
             q.jet2_phi,
             q.jet2_mass,
-            # q.jet2_rawpT,
-            # q.jet2_rawMass,
+            q.jet2_rawpT,
+            q.jet2_rawMass,
 
             # q.jet3_pt,
             # q.jet3_eta,
@@ -1144,7 +1145,7 @@ def build_config(
             ###
             q.mu1_mu2_dphi,
             
-            q.Flag_dimuon_Zmass_veto,
+            # q.Flag_dimuon_Zmass_veto,
             q.Flag_LeptonChargeSumVeto,
             q.Flag_DiMuonFromHiggs,
             triggers.GenerateSingleMuonTriggerFlagsForDiMuChannel_2022.output_group,
@@ -1185,8 +1186,8 @@ def build_config(
             q.pt_rc_2,
             q.BSC_pt_rc_1,
             q.BSC_pt_rc_2,
-            q.BSC_ptErr_rc_1,
-            q.BSC_ptErr_rc_2,
+            # q.BSC_ptErr_rc_1,
+            # q.BSC_ptErr_rc_2,
             q.pt_roc_1,
             q.pt_roc_2,
             q.BSC_pt_roc_1,
@@ -1260,7 +1261,8 @@ def build_config(
         configuration.add_modification_rule(
             "vbfhmm",
             AppendProducer(
-                producers=[event.applyMuonScaReMC_Err,
+                producers=[
+                    # event.applyMuonScaReMC_Err,
                 event.applyMuonScaReMC,
                 event.applyMuonScaReMC_reco,
                 ],
@@ -1468,7 +1470,7 @@ def build_config(
                     },
                     producers={
                         "global": [
-                            jets.JetPtCorrection_202223,
+                            jets.JetEnergyCorrection_202223,
                         ]
                     },
                 )
@@ -1482,7 +1484,7 @@ def build_config(
                     },
                     producers={
                         "global": [
-                            jets.JetPtCorrection_202223,
+                            jets.JetEnergyCorrection_202223,
                         ]
                     },
                 )

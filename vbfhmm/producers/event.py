@@ -369,6 +369,8 @@ applyMuonScaReMC_1 = Producer(
         nanoAOD.Muon_eta,
         nanoAOD.Muon_phi,
         nanoAOD.Muon_nTrackerLayers,
+        nanoAOD.event,
+        q.lumi,
     ],
     output=[q.BSC_pt_rc_1],
     scopes=["global","gghmm","vbfhmm","e2m","m2m","eemm","nnmm","fjmm"],
@@ -385,6 +387,8 @@ applyMuonScaReMC_2 = Producer(
         nanoAOD.Muon_eta,
         nanoAOD.Muon_phi,
         nanoAOD.Muon_nTrackerLayers,
+        nanoAOD.event,
+        q.lumi,
     ],
     output=[q.BSC_pt_rc_2],
     scopes=["global","gghmm","vbfhmm","e2m","m2m","eemm","nnmm","fjmm"],
@@ -449,51 +453,51 @@ applyMuonScaReData_Err = ProducerGroup(
     }
 )
 
-applyMuonScaReMC_Err_1 = Producer(
-    name="applyMuonScaReMC_Err_1",
-    call='physicsobject::muon::applyMuonScaReMC_Err({df}, {output}, "{muon_KIT_files}", 0, {input})',
-    input=[
-        #q.good_muon_collection, #good muon ordered by pt
-        q.dimuon_HiggsCand_collection,
-        nanoAOD.Muon_pt,
-        nanoAOD.Muon_eta,
-        nanoAOD.Muon_phi,
-        nanoAOD.Muon_charge,
-        nanoAOD.Muon_nTrackerLayers,
-    ],
-    output=[q.BSC_ptErr_rc_1],
-    scopes=["global","gghmm","vbfhmm","e2m","m2m","eemm","nnmm","fjmm"],
-)
+# applyMuonScaReMC_Err_1 = Producer(
+#     name="applyMuonScaReMC_Err_1",
+#     call='physicsobject::muon::applyMuonScaReMC_Err({df}, {output}, "{muon_KIT_files}", 0, {input})',
+#     input=[
+#         #q.good_muon_collection, #good muon ordered by pt
+#         q.dimuon_HiggsCand_collection,
+#         nanoAOD.Muon_pt,
+#         nanoAOD.Muon_eta,
+#         nanoAOD.Muon_phi,
+#         nanoAOD.Muon_charge,
+#         nanoAOD.Muon_nTrackerLayers,
+#     ],
+#     output=[q.BSC_ptErr_rc_1],
+#     scopes=["global","gghmm","vbfhmm","e2m","m2m","eemm","nnmm","fjmm"],
+# )
 
-applyMuonScaReMC_Err_2 = Producer(
-    name="applyMuonScaReMC_Err_2",
-    call='physicsobject::muon::applyMuonScaReMC_Err({df}, {output}, "{muon_KIT_files}", 1, {input})',
-    input=[
-        #q.good_muon_collection, #good muon ordered by pt
-        q.dimuon_HiggsCand_collection,
-        nanoAOD.Muon_pt,
-        nanoAOD.Muon_eta,
-        nanoAOD.Muon_phi,
-        nanoAOD.Muon_charge,
-        nanoAOD.Muon_nTrackerLayers,
-    ],
-    output=[q.BSC_ptErr_rc_2],
-    scopes=["global","gghmm","vbfhmm","e2m","m2m","eemm","nnmm","fjmm"],
-)
+# applyMuonScaReMC_Err_2 = Producer(
+#     name="applyMuonScaReMC_Err_2",
+#     call='physicsobject::muon::applyMuonScaReMC_Err({df}, {output}, "{muon_KIT_files}", 1, {input})',
+#     input=[
+#         #q.good_muon_collection, #good muon ordered by pt
+#         q.dimuon_HiggsCand_collection,
+#         nanoAOD.Muon_pt,
+#         nanoAOD.Muon_eta,
+#         nanoAOD.Muon_phi,
+#         nanoAOD.Muon_charge,
+#         nanoAOD.Muon_nTrackerLayers,
+#     ],
+#     output=[q.BSC_ptErr_rc_2],
+#     scopes=["global","gghmm","vbfhmm","e2m","m2m","eemm","nnmm","fjmm"],
+# )
 
-applyMuonScaReMC_Err = ProducerGroup(
-    name="applyMuonScaReMC_Err",
-    call=None,
-    input=None,
-    output=None,
-    #scopes=["global","gghmm","vbfhmm","e2m","m2m","eemm","nnmm","fjmm"],
-    #scopes=["vbfhmm","mm","mmet"],
-    scopes=["global","vbfhmm"],
-    subproducers= {
-        "vbfhmm": [applyMuonScaReMC_Err_1, applyMuonScaReMC_Err_2],
-        "global": [applyMuonScaReMC_Err_1, applyMuonScaReMC_Err_2],
-    }
-)
+# applyMuonScaReMC_Err = ProducerGroup(
+#     name="applyMuonScaReMC_Err",
+#     call=None,
+#     input=None,
+#     output=None,
+#     #scopes=["global","gghmm","vbfhmm","e2m","m2m","eemm","nnmm","fjmm"],
+#     #scopes=["vbfhmm","mm","mmet"],
+#     scopes=["global","vbfhmm"],
+#     subproducers= {
+#         "vbfhmm": [applyMuonScaReMC_Err_1, applyMuonScaReMC_Err_2],
+#         "global": [applyMuonScaReMC_Err_1, applyMuonScaReMC_Err_2],
+#     }
+# )
 #run 3 muon scale and resolution correction for origin
 applyMuonScaReData_reco_1 = Producer(
     name="applyMuonScaReData_reco_1",
@@ -550,6 +554,8 @@ applyMuonScaReMC_reco_1 = Producer(
         nanoAOD.Muon_eta,
         nanoAOD.Muon_phi,
         nanoAOD.Muon_nTrackerLayers,
+        nanoAOD.event,
+        q.lumi,
     ],
     output=[q.pt_rc_1],
     scopes=["global","gghmm","vbfhmm","e2m","m2m","eemm","nnmm","fjmm"],
@@ -566,6 +572,8 @@ applyMuonScaReMC_reco_2 = Producer(
         nanoAOD.Muon_eta,
         nanoAOD.Muon_phi,
         nanoAOD.Muon_nTrackerLayers,
+        nanoAOD.event,
+        q.lumi,
     ],
     output=[q.pt_rc_2],
     scopes=["global","gghmm","vbfhmm","e2m","m2m","eemm","nnmm","fjmm"],

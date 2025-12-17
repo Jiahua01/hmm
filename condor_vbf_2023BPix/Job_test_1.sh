@@ -9,7 +9,7 @@ cd /afs/cern.ch/user/j/jiahua/CROWN_run3
 
 source init.sh vbfhmm
 
-cd build_vbf/bin
+cd build_2022/bin
 export X509_USER_PROXY=$1
 voms-proxy-info -all
 voms-proxy-info -all -file $1

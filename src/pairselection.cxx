@@ -248,7 +248,8 @@ ROOT::RDF::RNode flagGoodPairs(ROOT::RDF::RNode df, const std::string &flagname,
     using namespace ROOT::VecOps;
     return df.Define(
         flagname,
-        [](const ROOT::RVec<int> &pair) { return bool(Min(pair) >= 0); },
+        // [](const ROOT::RVec<int> &pair) { return bool(Min(pair) >= 0); },
+        [](const ROOT::RVec<int> &pair) { return true; },
         {pairname});
 }
 

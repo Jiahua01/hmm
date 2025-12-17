@@ -59,9 +59,9 @@ def filter_and_format_dy_file(folder_path, dy_file, output_file):
 
 # 使用示例
 
-dy_file = '/afs/cern.ch/user/j/jiahua/CROWN_run3/condor_2022EE/Sample_list/DYto2L-2Jets_MLL-50_amcatnloFXFX_22EE_ext1-v1.txt'  # DY.txt 文件路径
-folder_path = '/afs/cern.ch/user/j/jiahua/work/MC_2022EE_inc/DYto2L-2Jets_MLL-50_amcatnloFXFX_22EE_ext1-v1'  # 包含 .root 文件的文件夹路径
-log_path = '/afs/cern.ch/user/j/jiahua/work/MC_2022EE_inc/log/log_DYto2L-2Jets_MLL-50_amcatnloFXFX_22EE_ext1-v1'  # 输出未找到条目的文件
-output_file = 'resub/DYto2L-2Jets_MLL-50_amcatnloFXFX_22EE_ext1-v1.sub'
+dy_file = '/afs/cern.ch/user/j/jiahua/CROWN_run3/condor_2022EE/Sample_list/ZZto2L2Q_powheg_22EE_ext1-v2.txt'  # DY.txt 文件路径
+folder_path = '/afs/cern.ch/user/j/jiahua/work/MC_2022EE_inc/1130/ZZto2L2Q_powheg_2022EE_ext1-v2'  # 包含 .root 文件的文件夹路径
+log_path = '/afs/cern.ch/user/j/jiahua/work/MC_2022EE_inc/log/log_ZZto2L2Q_powheg_2022EE_ext1-v2'  # 输出未找到条目的文件
+output_file = 'resub/ZZto2L2Q_powheg_2022EE_ext1-v2.sub'
 
 filter_and_format_dy_file(folder_path, dy_file, output_file)

@@ -59,6 +59,9 @@ JetPtCorrection_202223 = Producer(
         nanoAOD.GenJet_eta,
         nanoAOD.GenJet_phi,
         nanoAOD.rho,
+        nanoAOD.event,
+        nanoAOD.run,
+        q.lumi,
     ],
     output=[q.Jet_pt_corrected],
     scopes=["global"],
@@ -349,6 +352,7 @@ GoodJets_2022_VetoHorn = ProducerGroup(
     output=[q.good_jets_mask],
     scopes=["global", "vbfhmm"],
     subproducers=[HornJetVeto, JetPtCut, JetEtaCut, JetIDCut, VetoOverlappingJetsWithMuons],
+    # subproducers=[HornJetVeto, JetPtCut, JetEtaCut, VetoOverlappingJetsWithMuons],
 )#add veto horn jet cut
 # not finish, wait for the result of other group to figure out the problem
 
